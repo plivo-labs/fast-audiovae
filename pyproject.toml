@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/bevenky/fast-audiovae"
+Repository = "https://github.com/plivo-labs/fast-audiovae"
 
 [project.optional-dependencies]
 encoder = ["torch>=2.8"]

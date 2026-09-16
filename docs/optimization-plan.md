@@ -14,7 +14,7 @@ Inference remains pinned to **ONNX Runtime 1.29.0**. The separate ONNX model-edi
 | AMD EPYC 9654, four threads | 0.07629 | 0.05400 | 29.22% |
 | Intel Xeon 8280 VM, two threads | 0.35355 | 0.17709 | 49.91% |
 
-These are CPU-only, FP32, full-call decoder measurements on ten fixed multilingual clips, three repetitions each. They exclude encoding and profiling. AudioVAE2 produces 48 kHz; Mimi produces 24 kHz. The Intel MKL prototype reaches 0.32621, still requiring another 45.71% reduction to match Mimi. Its measured 7.73% gain costs about 211 MiB more resident memory. [Measurements and methodology](https://github.com/bevenky/fast-audiovae/blob/main/docs/multilingual.md)
+These are CPU-only, FP32, full-call decoder measurements on ten fixed multilingual clips, three repetitions each. They exclude encoding and profiling. AudioVAE2 produces 48 kHz; Mimi produces 24 kHz. The Intel MKL prototype reaches 0.32621, still requiring another 45.71% reduction to match Mimi. Its measured 7.73% gain costs about 211 MiB more resident memory. [Measurements and methodology](https://github.com/plivo-labs/fast-audiovae/blob/main/docs/multilingual.md)
 
 The arithmetic difference is real: AudioVAE2 requires approximately **17.982 GFLOP per generated second**, versus Mimi's **7.678** for the saved 6.8-second shape, approximately 2.342 times as much. These are dense multiply-accumulate counts, with two FLOPs per MAC. They exclude nonlinearities, normalization, copying and other overhead. Mimi's exported dense attention makes its count duration-dependent; this is not a fixed streaming ratio or a predicted speed ratio. Convolution counts include conventional padded/boundary work, including transposed-convolution output later sliced away.
 
@@ -33,7 +33,7 @@ Intel's saved two-thread profile covers three instrumented calls on a 6.8-second
 | Phase finishing | 1.84% |
 | Other operations | 1.96% |
 
-This is [instrumented operator time](https://github.com/bevenky/fast-audiovae/blob/main/benchmarks/intel-profile.json), not a decomposition of every clip in the RTF table. Matrix multiplication is the largest family, but approximately 40% is Snake, depthwise/Snake and additions.
+This is [instrumented operator time](https://github.com/plivo-labs/fast-audiovae/blob/main/benchmarks/intel-profile.json), not a decomposition of every clip in the RTF table. Matrix multiplication is the largest family, but approximately 40% is Snake, depthwise/Snake and additions.
 
 The six upsampling stages shrink channels while increasing temporal resolution. From stage 3 onward, those changes exactly cancel in activation volume:
 
@@ -48,7 +48,7 @@ The six upsampling stages shrink channels while increasing temporal resolution. 
 
 Each stage-3-through-6 feature tensor contains 1.536 million floats per audio second: **41.779 MB for 6.8 seconds**. Each residual block repeatedly visits that volume. These stages contain **88.14% of all Snake evaluations**, despite their smaller channel counts.
 
-Stage means output temporal-rate domain; upsampling belongs to its destination stage. Under this grouping, stages 3-6 total 69.15% Intel, 66.69% AMD and 74.04% Apple, replacing the older 81% figure. AMD/Apple profiles use 5.64 seconds; Intel uses 6.8 seconds. The current AMD instrumented profile was substantially slower than its ordinary timing run, so its individual milliseconds should not be scaled onto the headline RTF. [Current profile records](https://github.com/bevenky/fast-audiovae/blob/main/benchmarks/multilingual/cpu-results.json)
+Stage means output temporal-rate domain; upsampling belongs to its destination stage. Under this grouping, stages 3-6 total 69.15% Intel, 66.69% AMD and 74.04% Apple, replacing the older 81% figure. AMD/Apple profiles use 5.64 seconds; Intel uses 6.8 seconds. The current AMD instrumented profile was substantially slower than its ordinary timing run, so its individual milliseconds should not be scaled onto the headline RTF. [Current profile records](https://github.com/plivo-labs/fast-audiovae/blob/main/benchmarks/multilingual/cpu-results.json)
 
 A historical AMD acceptance campaign also profiled both decoders on the **same 6.8-second English clip, four threads**:
 
@@ -60,7 +60,7 @@ A historical AMD acceptance campaign also profiled both decoders on the **same 6
 | Add | 54.022 ms | 10.858 ms |
 | Complete profile sum | 490.535 ms | 338.636 ms |
 
-These families are not mathematically identical, but they reveal why the gap cannot be assigned only to upsampling or GEMM. Source: saved `remote_cpu/acceptance_results.json`, `phase_fused` and `mimi` profiles; accepted graph hashes match the current graphs, while the packaged native-library binary differs. This is historical attribution, separate from the [published multilingual comparison](https://github.com/bevenky/fast-audiovae/blob/main/docs/multilingual.md). No matched Intel Mimi operator profile was found.
+These families are not mathematically identical, but they reveal why the gap cannot be assigned only to upsampling or GEMM. Source: saved `remote_cpu/acceptance_results.json`, `phase_fused` and `mimi` profiles; accepted graph hashes match the current graphs, while the packaged native-library binary differs. This is historical attribution, separate from the [published multilingual comparison](https://github.com/plivo-labs/fast-audiovae/blob/main/docs/multilingual.md). No matched Intel Mimi operator profile was found.
 
 ## Implementation order
 

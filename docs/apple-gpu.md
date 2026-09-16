@@ -3,7 +3,7 @@
 CPU and streaming remain the defaults. Apple GPU decoding is explicit:
 
 ```sh
-python -m pip install 'fast-audiovae[gpu]==0.4.0' --find-links https://github.com/bevenky/fast-audiovae/releases/expanded_assets/v0.4.0
+python -m pip install 'fast-audiovae[gpu]==0.4.0' --find-links https://github.com/plivo-labs/fast-audiovae/releases/expanded_assets/v0.4.0
 ```
 
 ```python

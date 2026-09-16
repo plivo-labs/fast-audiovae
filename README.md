@@ -7,7 +7,7 @@ Fast inference for VoxCPM2's AudioVAE2 decoder, with optimized CPU kernels and o
 Use Python 3.11 to 3.13. Install from the release wheels; pip picks the platform automatically:
 
 ```sh
-python -m pip install fast-audiovae==0.5.0 --find-links https://github.com/bevenky/fast-audiovae/releases/expanded_assets/v0.5.0
+python -m pip install fast-audiovae==0.5.0 --find-links https://github.com/plivo-labs/fast-audiovae/releases/expanded_assets/v0.5.0
 ```
 
 This installs the CPU runtime and kernels without PyTorch or GPU dependencies. The wheel includes the small GPU integration code, but its dependencies are optional.
@@ -36,7 +36,7 @@ Native wheels currently cover Apple ARM on macOS 26.2 or newer and compatible In
 For Apple GPU support, add the optional `gpu` extra:
 
 ```sh
-python -m pip install 'fast-audiovae[gpu]==0.5.0' --find-links https://github.com/bevenky/fast-audiovae/releases/expanded_assets/v0.5.0
+python -m pip install 'fast-audiovae[gpu]==0.5.0' --find-links https://github.com/plivo-labs/fast-audiovae/releases/expanded_assets/v0.5.0
 ```
 
 The extra adds PyTorch 2.14.x alongside CPU support, so both CPU and Apple GPU execution are available. CPU remains the default; GPU runs only when you select `load(device="gpu")`. GPU loading prepares the optimized 40/80 ms paths automatically; first compilation takes extra time. [GPU usage and validation](docs/apple-gpu.md).
