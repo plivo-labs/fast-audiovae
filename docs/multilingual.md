@@ -74,7 +74,7 @@ Separate instrumented profiles of the historical native decoder attribute 52.04%
 
 The native depthwise kernels accumulate seven taps directly; Snake uses vector sine, and adjacent depthwise/Snake operations are fused. Dense matrix multiplication is the largest family in that profile, but the same-clip audit also finds substantial activation and residual-addition costs relative to Mimi. The existing optional AMD packing is a separate layout optimization with a memory cost, not lower-precision compression. Further matrix or epilogue changes need the same waveform and per-clip timing gates before becoming defaults. This campaign does not establish a further speedup from a proposed kernel.
 
-Intel's [separate 6.8-second technical profile](../benchmarks/intel-profile.json), using two threads and three profiled calls, identifies the following costs. It uses an earlier English clip, separate from the ten multilingual timing clips.
+Intel's [separate 6.8-second technical profile](https://github.com/plivo-labs/fast-audiovae/blob/9c860e1c386365496a55f2fbd8734355e213e8ab/benchmarks/intel-profile.json), using two threads and three profiled calls, identifies the following costs. It uses an earlier English clip, separate from the ten multilingual timing clips.
 
 | Native Intel operation | Share of profiled operator time |
 |---|---:|

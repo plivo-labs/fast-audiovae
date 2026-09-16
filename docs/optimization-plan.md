@@ -33,7 +33,7 @@ Intel's saved two-thread profile covers three instrumented calls on a 6.8-second
 | Phase finishing | 1.84% |
 | Other operations | 1.96% |
 
-This is [instrumented operator time](https://github.com/plivo-labs/fast-audiovae/blob/main/benchmarks/intel-profile.json), not a decomposition of every clip in the RTF table. Matrix multiplication is the largest family, but approximately 40% is Snake, depthwise/Snake and additions.
+This is [instrumented operator time](https://github.com/plivo-labs/fast-audiovae/blob/9c860e1c386365496a55f2fbd8734355e213e8ab/benchmarks/intel-profile.json), not a decomposition of every clip in the RTF table. Matrix multiplication is the largest family, but approximately 40% is Snake, depthwise/Snake and additions.
 
 The six upsampling stages shrink channels while increasing temporal resolution. From stage 3 onward, those changes exactly cancel in activation volume:
 

@@ -24,4 +24,9 @@ Version 0.5.0 inherited the 0.4.2 runtime and native binaries unchanged. [Releas
 
 [streaming/summary.json](streaming/summary.json), [streaming/one-thread.json](streaming/one-thread.json), the older precision campaigns and full-call reports remain experiment records. They are not a current-results index. Their model paths, runtimes, packet lengths and thread counts can differ from the shipping defaults.
 
-Raw measurements, source hashes and rejected experiments are retained unchanged. A hash-pinned experiment bundle may still contain its original `bevenky/fast-audiovae` URL; current installation and navigation use `plivo-labs/fast-audiovae`.
+Historical source snapshots and raw profiling traces are preserved unchanged in
+the [research archive](../docs/research-archive.md). Current qualification,
+summaries and release records remain here. Use the archived checkout for complete
+historical manifest verification. A hash-pinned experiment bundle may still
+contain its original `bevenky/fast-audiovae` URL; current installation and
+navigation use `plivo-labs/fast-audiovae`.

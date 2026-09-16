@@ -32,4 +32,4 @@ All 340 validation gate rows passed: 300 full-waveform rows and 40 boundary-fixt
 
 Seven subsequent complete-decoder screens tested reusable INT8 scratch, ordered residual fusion, larger tiles, direct VNNI, exact inline SLEEF sine and DW/post-Snake fusion. Improvements ranged from 0.68% to 4.54%; the original broad VNNI combination was 4.82% slower. None met the required 10% improvement. No candidate advanced to the full 60-clip validation and ten-clip timing gate.
 
-Their [source archive](../experiments/intel-precision/archive/iteration3/README.md) and [paired results](../benchmarks/intel-precision/iteration3/results.md) preserve the rejected work separately. Each screen must be compared with its own baseline; their percentages cannot be added together.
+Their [source archive](https://github.com/plivo-labs/fast-audiovae/blob/9c860e1c386365496a55f2fbd8734355e213e8ab/experiments/intel-precision/archive/iteration3/README.md) and [paired results](../benchmarks/intel-precision/iteration3/results.md) preserve the rejected work separately. Each screen must be compared with its own baseline; their percentages cannot be added together.
