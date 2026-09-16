@@ -92,4 +92,4 @@ Scored at 16 kHz; these metrics do not measure high-frequency fidelity. UTMOS an
 
 [Streaming API](docs/streaming.md) · [Optional encoder](docs/optional-backends.md) · [Kernel details](docs/cpu-kernel-results.md).
 
-Architecture and weights: [OpenBMB VoxCPM](https://github.com/OpenBMB/VoxCPM). Upstream model and dependency licenses apply.
+[Apache-2.0 license](LICENSE), matching [OpenBMB VoxCPM](https://github.com/OpenBMB/VoxCPM), the source of the architecture and weights. Third-party dependencies retain their own licenses.
