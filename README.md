@@ -79,16 +79,17 @@ Each latent frame produces 40 ms of mono 48 kHz audio; two frames produce 80 ms.
 
 ## Reconstruction quality
 
-Same 60 FLEURS recordings across ten languages, 80 ms streaming. Higher is better. The optimized row is the Apple CPU default.
+Same 60 FLEURS recordings across ten languages. AudioVAE2 and Mimi use 80 ms streaming; DACVAE is a full-clip, noncausal reference. Higher is better. The optimized row is the Apple CPU default.
 
 | Audio | PESQ-WB | STOI | UTMOS22 | DNSMOS P.835 | DNSMOS P.808 |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Original recordings | Reference | Reference | 2.321 | 2.775 | 3.428 |
 | Original AudioVAE2 | 3.742 | 0.9360 | 2.257 | 2.765 | 3.404 |
 | fast-audiovae | 3.741 | 0.9360 | 2.257 | 2.766 | 3.403 |
-| Pocket Mimi | 2.130 | 0.8074 | 2.517 | 2.894 | 3.339 |
+| Pocket Mimi | 2.130 | 0.8074 | 2.217 | 2.734 | 3.339 |
+| Meta DACVAE | 4.284 | 0.9731 | 2.222 | 2.779 | 3.431 |
 
-Scored at 16 kHz; these metrics do not measure high-frequency fidelity. UTMOS and DNSMOS are predictions, not listening ratings. Meta DACVAE is excluded because the tested model requires lookahead. [Quality details](docs/apple-int8.md) · [DNSMOS verification](docs/streaming-baseline.md#dnsmos-revalidation).
+Scored at 16 kHz; these metrics do not measure high-frequency fidelity. UTMOS and DNSMOS are predictions, not listening ratings.
 
 [Streaming API](docs/streaming.md) · [Optional encoder](docs/optional-backends.md) · [Kernel details](docs/cpu-kernel-results.md).
 
