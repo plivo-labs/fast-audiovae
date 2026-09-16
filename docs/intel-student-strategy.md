@@ -1,6 +1,10 @@
 # A faster codec student
 
-**Prioritize a student pilot after the accepted Intel checkpoint.** The completed Intel campaign passed all 264 validation records and improved decoder RTF from 0.25398 to 0.24424. Retain it as the validated baseline. A Supertonic-style decoder offers a larger potential reduction in computation than further optimization of the same AudioVAE2 network. Matching the audio quality you prefer is still an unproven training objective.
+Historical research proposal following the two-thread FP32 full-call campaign.
+It is not the current release plan or streaming baseline. For the shipping
+decoder and its measurements, see [Intel serving](intel-serving.md).
+
+The proposal was to try a student pilot after the accepted Intel checkpoint. That campaign passed all 264 validation records and improved decoder RTF from 0.25398 to 0.24424. Those values are the baseline for this proposal only. A Supertonic-style decoder offered a larger potential reduction in computation than further optimization of the same AudioVAE2 network; matching audio quality was an unproven training objective.
 
 The architectural difference matters. AudioVAE2 processes residual blocks at progressively higher rates, reaching 48,000 steps per second. Supertonic keeps its main network at a low frame rate, then predicts waveform blocks directly. Its released decoder uses causal ConvNeXt-style blocks, GELU and a PReLU waveform head. It does not use Snake or ConvNeXt V2's GRN. [Supertonic architecture](https://arxiv.org/html/2503.23108v3#S3.SS1)
 

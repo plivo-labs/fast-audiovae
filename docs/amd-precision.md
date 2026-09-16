@@ -1,6 +1,6 @@
-# AMD selective INT8 results
+# Historical AMD selective INT8 results
 
-The completed AMD AOCL screen reduced decoder time by 43.3% against the matched optimized FP32 control. Runtime checks and fresh quality scoring are complete, with the INT8 recipe's small measured score declines retained. This is a tested opt-in recipe and does not change public defaults.
+The completed AMD AOCL screen reduced decoder time by 43.3% against the matched optimized FP32 control. Runtime checks and fresh quality scoring are complete, with the INT8 recipe's small measured score declines retained. This was an opt-in, four-thread full-call experiment. The current package automatically selects supported AMD INT8 recipes; see [AMD CPU serving](amd-serving.md) for the later one-thread streaming implementation and its separate measurements.
 
 ## Matched screen
 
@@ -51,4 +51,4 @@ The [source package](../experiments/amd-precision/README.md) retains exact measu
 
 The measured dependencies are AOCL-DLP commit `c577191304a3db0029f2f12fcacbc8ad296a645d`, LIBXSMM commit `55a8fa6a1e479dec1f5ddbe20684c1cdc0ff7eb1`, ORT API29 headers and the recorded SLEEF-backed native CPU library. Exact supplied source/header/library digests are checked before and after compilation. Rebuilt outputs are always unvalidated, even when dependency hashes match. Different compiler paths or inputs do not inherit historical binary identity.
 
-This specific backend requires AMD AVX512 VNNI plus OS vector-state support. It is not a generic all-AMD acceleration claim. The public FP32 runtime is unchanged. [Publication metadata](../benchmarks/amd-precision/publication.json) distinguishes original evidence digests from normalized private-path copies. Models, weights, audio, binaries, installed dependencies and object files are omitted.
+This specific backend requires AMD AVX512 VNNI plus OS vector-state support. It is not a generic all-AMD acceleration claim. The full-call experiment preserved the then-current FP32 runtime; it does not describe current automatic precision selection. [Publication metadata](../benchmarks/amd-precision/publication.json) distinguishes original evidence digests from normalized private-path copies. Models, weights, audio, binaries, installed dependencies and object files are omitted.

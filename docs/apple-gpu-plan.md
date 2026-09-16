@@ -1,6 +1,6 @@
 # Apple GPU work
 
-This is the original development plan. The integrated implementation is documented in [Apple GPU decoding](apple-gpu.md).
+This is the original development plan, retained for context. The completed V6 implementation is included in v0.5.0 and documented in [Apple GPU decoding](apple-gpu.md), with its matched measurements in the [integrated comparison](../experiments/apple-gpu-v6/report.md).
 
 The public selector is `device`, with `"cpu"` as the default. Only an explicit `load(device="gpu")` request selects the Apple GPU. Streaming remains the default mode. An unavailable GPU or unsupported operation raises an error instead of silently running the decoder on the CPU.
 
@@ -36,4 +36,4 @@ CoreML remains an alternative to evaluate later. Its CPU-and-GPU setting allows 
 
 ## Completed short experiments
 
-The four candidates have now been tested. Full-step compilation gave the clearest reduction; standalone Snake compilation regressed, precise Metal Snake helped modestly, and projected-overlap reuse had no established extra benefit. The original-history compiled path is the preferred next candidate. See [results and qualification](apple-gpu-experiments.md). CPU defaults remain unchanged; the qualified hybrid matrix path is now integrated in the optional GPU loader.
+The four initial candidates were tested. Full-step compilation gave the clearest reduction; standalone Snake compilation regressed, precise Metal Snake helped modestly, and projected-overlap reuse had no established extra benefit. Original-history compilation was the preferred V2 candidate. V4 then qualified the hybrid matrix path, and V6 integrated it in the optional GPU loader. See [the experiment history](apple-gpu-experiments.md) and [final integrated comparison](../experiments/apple-gpu-v6/report.md). CPU remains the default device.

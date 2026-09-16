@@ -2,12 +2,12 @@
 
 The native wheel automatically selects the accepted AMD streaming kernels on
 compatible Linux CPUs with usable AVX512-VNNI. CPU, streaming and one thread
-remain the defaults. These kernels are included in the v0.4.1 native wheels.
+remain the defaults. These kernels were introduced in the v0.4.1 native wheels and are retained in v0.5.0.
 
 The recipe combines the first two projections, processes six early convolution
 histories directly, and assembles the first upsampling output without temporary
 concatenations. It keeps the existing quantization, weights and 18 history states.
-Batch and four-thread AMD use their existing recipes. Apple kernels are unchanged;
+Batch and four-thread AMD use their existing recipes. This AMD integration did not change Apple kernels;
 Intel has its own separately validated recipe. Older wheels retain their earlier AMD path.
 
 ## Short validation

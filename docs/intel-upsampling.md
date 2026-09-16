@@ -1,5 +1,9 @@
 # Intel upsampling iteration
 
+Historical two-thread FP32 full-call campaign. The measurements and proposed
+follow-ups below describe that experiment. Current one-thread streaming
+selection and package checks are in [Intel serving](intel-serving.md).
+
 The candidate passed the predeclared experiment gate: at least 2% aggregate time reduction, all ten clip means improved and all numerical checks passed.
 
 CPU-only, Intel Xeon Platinum 8280 VM, two threads pinned to CPUs 0 and 1, ONNX Runtime 1.29.0 and FP32. The same 60 recordings were validated; the original 10 timing clips used two warmups and five shuffled repetitions. These are fresh complete decoder calls, excluding loading, encoding, TTS and profiling. Lower RTF is better.
@@ -38,9 +42,9 @@ A separate 6.8-second profile of the new candidate locates the remaining work. I
 
 Standalone matrix operators account for 41.13% of this profile; fused residual and upsampling stages account for another 45.32%. Those fused stages contain matrix operations, Snake and depthwise work, so this profile does not separate their internal costs. The standalone Snake share of 3.59% is not the total Snake cost. Further internal attribution should precede choosing another kernel target.
 
-The next kernel hypothesis is a row-local Snake/depthwise pipeline that removes a repeated tile-to-row copy and reduces live activation buffers. It needs internal cost attribution and separate validation before any performance claim. AMD and Apple performance were not changed or benchmarked in this iteration.
+The next kernel hypothesis at the time was a row-local Snake/depthwise pipeline that removes a repeated tile-to-row copy and reduces live activation buffers. It required internal cost attribution and separate validation before any performance claim. AMD and Apple performance were not changed or benchmarked in this iteration.
 
-For a larger speed improvement, prioritize a bounded Supertonic-style causal student experiment against real native 48 kHz audio, with DAC-VAE as additional supervision. Keeping the noncausal teacher encoder would violate the full-codec requirement. A new native 48→48 kHz causal encoder is required. Quality and Intel RTF remain unproven for that student. See [student strategy](intel-student-strategy.md).
+The separate architecture proposal was a bounded Supertonic-style causal student experiment against real native 48 kHz audio, with DAC-VAE as additional supervision. Keeping the noncausal teacher encoder would violate that proposal's full-codec requirement. A new native 48→48 kHz causal encoder would be required. The proposal did not establish quality or Intel RTF for such a student and is not part of the shipping kernel recipe. See [historical student strategy](intel-student-strategy.md).
 
 ## Evidence
 

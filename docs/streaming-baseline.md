@@ -1,12 +1,12 @@
-# Apple causal streaming baseline
+# Apple FP32 causal streaming baseline
 
-Version 0.3.0 selects the measured Apple streaming recipe automatically when the OS reports SME and SME2 support. Its streaming graph is exactly `5918e523939aba3a6f72e32b88b27a0a1f39828a376b0ed748a7cb43e70ce841`. This is the implementation previously measured at 0.07121946 RTF on a short 2.04-second prefix. That historical number is not a performance guarantee; the README uses the fresh matched measurements described below.
+This page records the FP32 recipe introduced in v0.3.0. It remains the supported multithreaded Apple streaming path. Version 0.5.0 selects [a separately qualified INT8 recipe](apple-int8.md) for one-thread streaming when SME and SME2 support is verified. The historical FP32 streaming graph is exactly `5918e523939aba3a6f72e32b88b27a0a1f39828a376b0ed748a7cb43e70ce841`. This is the implementation previously measured at 0.07121946 RTF on a short 2.04-second prefix. That historical number is not a performance guarantee; the measurements below are the matched FP32 campaign, not a new measurement of the current INT8 default.
 
 AudioVAE2 produces 48 kHz audio from 64-dimensional latents at 25 Hz. Pocket continuous Mimi produces 24 kHz audio from 32-dimensional latents at 12.5 Hz. Both retain decoder history and process only new latent frames. Encoding is performed beforehand and is outside the timing. This qualifies streaming decoding, not an end-to-end streaming encoder API.
 
 ## Timing
 
-The current comparison uses Apple M5 Max, macOS 26.5.1 and ONNX Runtime 1.30.0 for all three decoders. The selected implementation is loaded from an installed platform wheel. Stock AudioVAE2 uses the pinned original ONNX export with explicit causal state and no native graph rewrites. Every AudioVAE2 variant receives the same frozen latents. Mimi uses its own encoder latents for the same recordings.
+This FP32 comparison used Apple M5 Max, macOS 26.5.1 and ONNX Runtime 1.30.0 for all three decoders. The selected implementation is loaded from an installed platform wheel. Stock AudioVAE2 uses the pinned original ONNX export with explicit causal state and no native graph rewrites. Every AudioVAE2 variant receives the same frozen latents. Mimi uses its own encoder latents for the same recordings.
 
 The three frozen FLEURS recordings are `bn_in_00151_1818`, `en_us_00103_1779` and `es_419_00060_1994`. Every codec and packet size gets two warmups and five measured repetitions. Stock and selected variants are paired, with order randomized inside each repetition. All numerical checks must pass before a timing enters the table.
 
@@ -18,7 +18,7 @@ The thread settings are one and four ORT intra-op threads, with one inter-op thr
 
 AudioVAE2 is measured at 40 ms and 80 ms packets. Mimi's native latent frame is 80 ms, so no 40 ms Mimi measurement is reported. Splitting an already-produced 80 ms waveform into transport packets would not establish a 40 ms decoder.
 
-The [current results](../benchmarks/streaming/apple-selected-20260913.json) include artifact identities, per-recording medians, state checks and an additional short comparison of the packaged implementation with the historical selected bundle. The [earlier ORT 1.29 baseline](../benchmarks/streaming/apple-one-thread-20260913.json) remains available separately.
+The [FP32 campaign results](../benchmarks/streaming/apple-selected-20260913.json) include artifact identities, per-recording medians, state checks and an additional short comparison of the packaged implementation with the historical selected bundle. The [earlier ORT 1.29 baseline](../benchmarks/streaming/apple-one-thread-20260913.json) remains available separately.
 
 ## Preservation of the selected baseline
 
@@ -42,7 +42,7 @@ The final source suite passed 277 tests and 1,959 subtests. Package initializati
 
 ## Quality
 
-The README's perceptual quality table uses the earlier one-thread, 80 ms streaming speech panel on 60 FLEURS recordings across ten languages, totaling 534.58 seconds. PESQ and STOI compare each codec with the same original audio; UTMOS and DNSMOS are reference-free predictors. PESQ, STOI and UTMOS remain the earlier results. DNSMOS was subsequently rechecked on the saved waveforms as described below. No audio was re-encoded for this recheck, and it is not a fresh perceptual evaluation of the current kernels. The release is qualified separately for numerical agreement with stock. The trained values remain unchanged.
+This FP32 panel used one-thread, 80 ms streaming on 60 FLEURS recordings across ten languages, totaling 534.58 seconds. PESQ and STOI compare each codec with the same original audio; UTMOS and DNSMOS are reference-free predictors. DNSMOS was subsequently rechecked on the saved waveforms as described below without re-encoding. The current README uses fresh scores for [the Apple INT8 default](apple-int8.md), with the original-audio and Mimi rows retained from this panel. The FP32 qualification and scores below remain historical evidence; they do not establish INT8 equality to stock.
 
 Only terminal padding was removed before scoring. There was no fitted time alignment, gain normalization, clipping or silence removal. The source bandwidth and metric sample rate were 16 kHz. These scores do not assess fidelity above 8 kHz or establish music quality. UTMOS22 and DNSMOS are predictions, not human ratings. [Quality scores and scorer provenance](../benchmarks/streaming/apple-quality-20260913.json).
 
@@ -50,7 +50,7 @@ The earlier panel had no missing scores or scorer warnings, and its 29 metric me
 
 ### DNSMOS revalidation
 
-The earlier README's "DNSMOS overall" column meant P.835 overall. Those values were correct; the table now names P.835 explicitly and includes P.808, which ranks these codecs differently.
+The earlier README's "DNSMOS overall" column meant P.835 overall. Those values were correct; the table below names P.835 explicitly and includes P.808, which ranks these codecs differently. Its AudioVAE2 row is the historical FP32 output.
 
 | Audio | DNSMOS P.835 overall | DNSMOS P.808 |
 | --- | ---: | ---: |
@@ -62,4 +62,4 @@ The exact class from [Microsoft's pinned DNSMOS implementation](https://github.c
 
 The replay retained the shared float32, 16 kHz metric inputs and official windowing and calibration. It did not substitute the upstream file loader's float64/librosa resampling path. Among the two codecs, Mimi leads P.835 overall on 44 of 60 recordings, while AudioVAE2 leads P.808 on 39 of 60. This is a difference between predictors, not evidence of a scoring reversal or a human listening preference.
 
-Meta DACVAE is excluded because the tested checkpoint requires future latent frames. Buffered decoding with lookahead does not qualify for this zero-lookahead decoder comparison. No new Intel or AMD speed measurement is claimed in this release; their existing native payload is preserved.
+Meta DACVAE is excluded because the tested checkpoint requires future latent frames. Buffered decoding with lookahead does not qualify for this zero-lookahead decoder comparison. This Apple FP32 campaign made no new Intel or AMD speed claim. Their later serving checks are recorded separately in [AMD serving](amd-serving.md) and [Intel serving](intel-serving.md).

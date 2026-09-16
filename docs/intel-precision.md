@@ -1,6 +1,6 @@
-# Intel precision results
+# Historical Intel precision results
 
-Selective INT8 reduced decoder time by **33.9%** against the matched optimized FP32 decoder. It achieved 4.01x stock throughput and an aggregate RTF 3.5% below Mimi in this run. It was faster than optimized FP32 on all ten timed clip means, and faster than Mimi on eight. It remains an experiment; the installed runtime defaults are unchanged.
+Selective INT8 reduced decoder time by **33.9%** against the matched optimized FP32 decoder. It achieved 4.01x stock throughput and an aggregate RTF 3.5% below Mimi in this run. It was faster than optimized FP32 on all ten timed clip means, and faster than Mimi on eight. These are earlier full-call precision experiments, not current streaming timings. Supported Intel CPUs now automatically select an INT8 recipe; see [Intel CPU streaming](intel-serving.md) for the shipped implementation and its separate checks.
 
 | Decoder | RTF, lower is better | Listening pilot /100 | PESQ WB | STOI | UTMOS22 | DNSMOS overall |
 |---|---:|---:|---:|---:|---:|---:|
@@ -28,7 +28,7 @@ The native 48 kHz listening pilot had one listener and eight rated clips. Select
 
 All 340 validation gate rows passed: 300 full-waveform rows and 40 boundary-fixture rows. Recovery revalidated 227 saved waveforms and generated 73 fresh full waveforms. All 250 timed calls were fresh and matched their validated waveform hashes. FP32 used the existing numerical tolerance. INT8 was checked for shape, finite values, unchanged input, exact repeated output and future-input invariance, with the existing short/long prefix checks. INT8 was not required to equal FP32; its quality changes are reported above.
 
-## Later experiments
+## Subsequent experiments in this campaign
 
 Seven subsequent complete-decoder screens tested reusable INT8 scratch, ordered residual fusion, larger tiles, direct VNNI, exact inline SLEEF sine and DW/post-Snake fusion. Improvements ranged from 0.68% to 4.54%; the original broad VNNI combination was 4.82% slower. None met the required 10% improvement. No candidate advanced to the full 60-clip validation and ten-clip timing gate.
 

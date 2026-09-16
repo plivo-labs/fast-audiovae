@@ -25,7 +25,7 @@ with decoder.stream() as stream:
 
 For a complete latent sequence, use `decoder = load(mode="batch")`, then `audio = decoder.decode(latents)`. Both return 48 kHz audio. [Streaming usage and validation](docs/streaming.md).
 
-The loader selects the CPU kernels automatically. Streaming and one inference thread are the defaults. Each latent frame produces 40 ms of audio; pass two frames for 80 ms packets. Use `load(threads=4)` to request four inference threads. `decoder.info` shows what was selected.
+The loader selects the CPU kernels automatically. Streaming and one inference thread are the defaults. Each latent frame produces 40 ms of audio; pass two frames for 80 ms packets. Use `load(threads=4)` to request four inference threads. The available CPU budget and supported schedules may cap that request; `decoder.info` shows what was selected.
 
 Apple CPUs with SME/SME2 automatically use the faster one-thread streaming kernels. Multiple threads and batch mode retain their existing kernels. Other Apple CPUs retain the compatible native path; unsupported systems use portable ONNX with a fallback message. CPU is always the default device. [Apple update and quality checks](docs/apple-int8.md).
 
@@ -65,14 +65,15 @@ Earlier comparison, before the one-thread update:
 
 Same three multilingual recordings, two warmups and five measured repetitions per case. The one-thread run had substantial timing drift across all codecs, so these observations do not establish a thread-count speedup or reproduce the historical 0.07122 short-clip result. RTF includes decode calls and flush; loading and encoding are excluded. AudioVAE2 outputs 48 kHz; Pocket continuous Mimi outputs 24 kHz and has an 80 ms minimum frame. [Protocol and results](docs/streaming-baseline.md).
 
-Intel Xeon Platinum 8280 VM, **one CPU thread**, ONNX Runtime 1.29.0, causal streaming:
+Linux CPU package checks, **one thread**, ONNX Runtime 1.29.0, causal streaming:
 
-| Output chunk | Previous optimized AudioVAE2 RTF | New matrix baseline RTF |
-| --- | ---: | ---: |
-| 40 ms | 0.4243 | **0.3936** |
-| 80 ms | 0.2829 | **0.2723** |
+| CPU | Output chunk | Accepted reference RTF | Packaged AudioVAE2 RTF |
+| --- | --- | ---: | ---: |
+| AMD EPYC 9654 | 80 ms | 0.1352 | **0.1375** |
+| Intel Xeon Platinum 8280 VM | 40 ms | 0.3960 | **0.3941** |
+| Intel Xeon Platinum 8280 VM | 80 ms | 0.2652 | **0.2666** |
 
-Short matched check on three 1.6-second multilingual prefixes, one warmup and three measured repetitions. Every measured pair improved. Outputs and all streaming states matched the previous optimized Intel baseline exactly; this is not a claim of bit-for-bit agreement with stock FP32. The Snake experiment is excluded. [Intel protocol and validation](docs/intel-serving.md).
+Short matched package checks on three 1.6-second multilingual prefixes per machine, timing completed `Session.run` calls only. AMD was about 1.7% slower than its accepted reference; Intel differed by about 0.5%. Outputs and checked histories matched the accepted optimized recipes exactly. These are separate sessions from the Apple tables. The later AMD library-lookup fix passed numerical checks without another timing run. [AMD protocol](docs/amd-serving.md) and [Intel protocol](docs/intel-serving.md).
 
 Independent batch decoding on Apple M5 Max, **one CPU thread**, using `load(mode="batch")`:
 
@@ -101,7 +102,7 @@ One-thread, 80 ms streaming on the same 60 FLEURS recordings across ten language
 | Audio | PESQ-WB | STOI | UTMOS22 | DNSMOS P.835 overall | DNSMOS P.808 |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Original recordings | Reference | Reference | 2.321 | 2.775 | 3.428 |
-| AudioVAE2 | 3.741 | 0.9360 | 2.257 | 2.766 | 3.403 |
+| AudioVAE2, Apple CPU default | 3.741 | 0.9360 | 2.257 | 2.766 | 3.403 |
 | Pocket Mimi | 2.130 | 0.8074 | 2.517 | 2.894 | 3.339 |
 
 DNSMOS update: the earlier "overall" column was P.835, and its values were confirmed. The table now also shows P.808. Rechecking all saved recordings with Microsoft's pinned scorer confirmed that Mimi leads P.835 overall, while AudioVAE2 leads P.808. [Revalidation details](docs/streaming-baseline.md#dnsmos-revalidation).
@@ -111,5 +112,7 @@ The Apple update introduces small numerical differences; its paired quality scor
 ## More
 
 [Kernel experiments](docs/cpu-kernel-results.md) and [optional backends and encoder setup](docs/optional-backends.md) contain the detailed build and validation records. The encoder retains its existing 16 kHz input. The [streaming decoder](docs/streaming.md) carries independent history between chunks.
+
+[Benchmark records](benchmarks/README.md) identifies the current results and the older experiments behind them.
 
 Architecture and weights originate from [OpenBMB VoxCPM](https://github.com/OpenBMB/VoxCPM). Preparation uses the checksum-verified [pinned ONNX export](https://huggingface.co/ai4all8/VoxCPM2-ONNX/tree/ecb511b96675f041424b42f148bf72e301262586). Upstream model and dependency licenses apply.

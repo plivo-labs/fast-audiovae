@@ -1,6 +1,6 @@
-# Apple INT8 results
+# Historical Apple full-call INT8 experiment
 
-Use the Apple FP32 implementation. The final SME2 panels experiment passed correctness checks but reduced decoder time by only 3.0%, below the required 10% improvement. Its automated quality scores were also slightly lower than FP32. It remains an explicit experiment; runtime defaults are unchanged.
+This earlier four-thread, full-call experiment quantized 22 matrix products. It passed correctness checks but reduced decoder time by only 3.0%, below its 10% adoption threshold, and slightly lowered automated quality scores. It was not adopted. The current [Apple streaming default](apple-int8.md) is a separately qualified one-thread recipe that quantizes only two projections; its results must not be mixed with this campaign.
 
 ## Final matched comparison
 
@@ -13,7 +13,7 @@ Apple M5 Max, native ARM macOS, ONNX Runtime 1.29.0 CPUExecutionProvider, four O
 | Selective SME2 panels INT8 | 0.023938 |
 | Mimi | 0.028114 |
 
-RTF is the arithmetic mean of the per-clip mean RTFs, so each selected clip has equal weight. It measures complete decoder calls and uses complete generated waveform duration, including documented right padding. Loading, encoding, warmup, validation, profiling and quality scoring are excluded. There is no cached streaming API.
+RTF is the arithmetic mean of the per-clip mean RTFs, so each selected clip has equal weight. It measures complete decoder calls and uses complete generated waveform duration, including documented right padding. Loading, encoding, warmup, validation, profiling and quality scoring are excluded. This campaign did not use the cached streaming API now provided by the package.
 
 INT8 saved **3.026%** of decoder time. Its 95% bootstrap interval, resampling clips and repeat blocks, was **0.86% to 5.86%**. This fails the 10% adoption threshold. FP32 already ran faster than Mimi in this matched comparison. These numbers do not establish performance on other Apple CPUs or under other system loads. See the [compact evidence](../benchmarks/apple-precision/sme2-panels.json).
 

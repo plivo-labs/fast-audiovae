@@ -1,9 +1,11 @@
 # Remaining upsampling work after the combined Intel candidate
 
-This is static graph and source analysis for the next experiment. The proposed
-fusion has not been implemented or timed.
+Historical design for the FP32 full-call experiment later measured in
+[Intel upsampling](intel-upsampling.md). At the time of this analysis, the
+proposed fusion had not been implemented or timed. For the shipping one-thread
+streaming path, see [Intel serving](intel-serving.md).
 
-The current 109-node combined model was reconstructed in memory and matched its
+The then-current 109-node combined model was reconstructed in memory and matched its
 recorded SHA256 exactly: `e188d0609795d256627b4e39b632d5c5ca064256d410899ecb05ac4eb6301bc2`.
 Its source hash is `34ccdc4b835d04c6a240c7cd2c8025995d22b4c9f3877e61e0b9ee7524d5de66`.
 No reconstructed model or weights were saved. [analysis.json](../benchmarks/kernel-experiments/next-steps/analysis.json) contains the exact

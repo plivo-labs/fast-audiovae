@@ -1,6 +1,6 @@
 # Initial Apple GPU results
 
-This is a short qualification and timing baseline from September 13, 2026, on an Apple M5 Max running macOS 26.5.1. AudioVAE2 uses the original verified ONNX coefficients in a FP32 PyTorch MPS implementation. It does not use the optimized CPU kernels. The public GPU path has not demonstrated a speed advantage over the selected CPU implementation.
+This is a short qualification and timing baseline from September 13, 2026, on an Apple M5 Max running macOS 26.5.1. AudioVAE2 uses the original verified ONNX coefficients in a FP32 PyTorch MPS implementation. It does not use the optimized CPU kernels. At this initial eager-MPS stage, the public GPU path had not demonstrated a speed advantage over the selected CPU implementation. The later [V6 integrated comparison](../experiments/apple-gpu-v6/report.md) measures the optimized GPU implementation shipped in v0.5.0; the measurements below remain the original baseline.
 
 PyTorch was 2.14.0 and ONNX Runtime was 1.30.0. MPS CPU fallback, fast math and autocast were disabled. The CPU comparator was the selected `5918e523` streaming graph with one worker; the GPU process also used one host thread. GPU work is not restricted to one execution lane.
 

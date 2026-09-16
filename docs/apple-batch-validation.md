@@ -1,6 +1,6 @@
 # Apple batch validation
 
-The new batch path reuses the selected Apple kernels for independent inputs. This is a short check of an **unreleased source checkout using the unchanged v0.3.0 native payload**, not a new release or a replacement for the [streaming qualification](streaming-baseline.md). Ordinary `load()` still selects streaming; independent calls use `load(mode="batch")`.
+The batch path reuses the selected Apple FP32 kernels for independent inputs. These checks were performed on a prerelease source checkout using the unchanged v0.3.0 native payload; the batch path subsequently shipped in v0.4.0 and is retained in v0.5.0. They do not replace [streaming qualification](streaming-baseline.md). Ordinary `load()` selects streaming, including [the current one-thread INT8 recipe](apple-int8.md) on supported Apple CPUs; independent calls use `load(mode="batch")`.
 
 The batch graph accepts one complete `[1, 64, L]` input and returns all `1,920 * L` samples at 48 kHz. Each call starts with zero history. It preserves the trained tensors and native kernels, replacing the 26 external history inputs with constants. It does not carry state between calls or prepend latent frames.
 

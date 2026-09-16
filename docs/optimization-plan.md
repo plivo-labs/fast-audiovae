@@ -1,10 +1,10 @@
 # Closing the CPU gap to Mimi
 
-The next useful change is a fused residual-stage implementation that keeps intermediate audio features in small reusable buffers. Changing another BLAS library or only widening the sine loop does not address all the remaining work.
+This historical plan proposed a fused residual-stage implementation that keeps intermediate audio features in small reusable buffers. It predates the current streaming recipes. For the shipped paths and measurements, see [Apple CPU](apple-int8.md), [AMD CPU](amd-serving.md), [Intel CPU](intel-serving.md) and the [README](../README.md).
 
 This is the original implementation plan, based on saved CPU profiles, source, assembly and static graph shapes. The subsequent [kernel experiments](cpu-kernel-results.md) report what was implemented and measured. The [original audit data](../benchmarks/cpu-optimization-audit.json) preserves the earlier stage totals, matrix shapes and source hashes.
 
-Inference remains pinned to **ONNX Runtime 1.29.0**. The separate ONNX model-editing package is now 1.22.0; [static compatibility checks](../benchmarks/onnx-tooling-compatibility.json) reproduced the accepted native and fallback graphs byte-for-byte. This tooling update does not change the model operations or the recorded benchmark results.
+The measurements in this plan used **ONNX Runtime 1.29.0**. The current package pins 1.30.0 on macOS ARM64 and 1.29.0 elsewhere. The separate ONNX model-editing package is 1.22.0; [static compatibility checks](../benchmarks/onnx-tooling-compatibility.json) reproduced the accepted native and fallback graphs byte-for-byte. This tooling update does not change the model operations or the recorded benchmark results.
 
 ## The target
 
@@ -48,7 +48,7 @@ The six upsampling stages shrink channels while increasing temporal resolution. 
 
 Each stage-3-through-6 feature tensor contains 1.536 million floats per audio second: **41.779 MB for 6.8 seconds**. Each residual block repeatedly visits that volume. These stages contain **88.14% of all Snake evaluations**, despite their smaller channel counts.
 
-Stage means output temporal-rate domain; upsampling belongs to its destination stage. Under this grouping, stages 3-6 total 69.15% Intel, 66.69% AMD and 74.04% Apple, replacing the older 81% figure. AMD/Apple profiles use 5.64 seconds; Intel uses 6.8 seconds. The current AMD instrumented profile was substantially slower than its ordinary timing run, so its individual milliseconds should not be scaled onto the headline RTF. [Current profile records](https://github.com/plivo-labs/fast-audiovae/blob/main/benchmarks/multilingual/cpu-results.json)
+Stage means output temporal-rate domain; upsampling belongs to its destination stage. Under this grouping, stages 3-6 total 69.15% Intel, 66.69% AMD and 74.04% Apple, replacing the older 81% figure. AMD/Apple profiles use 5.64 seconds; Intel uses 6.8 seconds. The AMD instrumented profile in this plan was substantially slower than its ordinary timing run, so its individual milliseconds should not be scaled onto the headline RTF. [Historical profile records](https://github.com/plivo-labs/fast-audiovae/blob/main/benchmarks/multilingual/cpu-results.json)
 
 A historical AMD acceptance campaign also profiled both decoders on the **same 6.8-second English clip, four threads**:
 
@@ -60,7 +60,7 @@ A historical AMD acceptance campaign also profiled both decoders on the **same 6
 | Add | 54.022 ms | 10.858 ms |
 | Complete profile sum | 490.535 ms | 338.636 ms |
 
-These families are not mathematically identical, but they reveal why the gap cannot be assigned only to upsampling or GEMM. Source: saved `remote_cpu/acceptance_results.json`, `phase_fused` and `mimi` profiles; accepted graph hashes match the current graphs, while the packaged native-library binary differs. This is historical attribution, separate from the [published multilingual comparison](https://github.com/plivo-labs/fast-audiovae/blob/main/docs/multilingual.md). No matched Intel Mimi operator profile was found.
+These families are not mathematically identical, but they reveal why the gap cannot be assigned only to upsampling or GEMM. Source: saved `remote_cpu/acceptance_results.json`, `phase_fused` and `mimi` profiles; accepted graph hashes matched the graphs inspected for this plan, while the packaged native-library binary differed. This is historical attribution, separate from the [published multilingual comparison](https://github.com/plivo-labs/fast-audiovae/blob/main/docs/multilingual.md). No matched Intel Mimi operator profile was found.
 
 ## Implementation order
 

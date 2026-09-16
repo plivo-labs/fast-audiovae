@@ -1,6 +1,6 @@
 # Performance and validation
 
-These are historical 20-clip English development measurements on Apple M5 Max and AMD EPYC 9654. The [new multilingual benchmark](multilingual.md) includes Intel, Meta DACVAE and reconstruction-quality results. They are CPU-only results, not GPU, encoder-plus-decoder or whole-TTS timings.
+These are historical 20-clip English development measurements on Apple M5 Max and AMD EPYC 9654. The [later historical multilingual benchmark](multilingual.md) includes Intel, Meta DACVAE and reconstruction-quality results. They are CPU-only results, not GPU, encoder-plus-decoder or whole-TTS timings.
 
 ## Decoder measurements
 
@@ -44,8 +44,8 @@ python benchmarks/decoder.py --bundle artifacts --cases user-latents.npz --threa
 
 Validation defaults to one/four threads and exits nonzero on failed parity. Repeat timing with `--threads 1` and a separate output filename. Use `--amd-packed` for the optional AMD route. This timing command measures AudioVAE2 only; it does not reproduce the separate Mimi comparison automatically.
 
-## Current CPU work
+## Later CPU work
 
-The measurements above predate the new AVX512 kernels, ordered residual fusions and tiled residual stages. See [the latest kernel results](cpu-kernel-results.md) for matched Intel and AMD improvements, quality checks and remaining bottlenecks. The larger stage experiments are separate from the default runtime.
+The measurements above predate AVX512 kernels, ordered residual fusions and tiled residual stages. The [historical kernel results](cpu-kernel-results.md) record those subsequent experiments. Current streaming implementations and their qualification are documented in [Apple INT8](apple-int8.md), [AMD serving](amd-serving.md) and [Intel serving](intel-serving.md).
 
-FLOP counts alone do not predict decoder RTF. Earlier estimates combined matrix throughput with the then-current non-matrix overhead; fusion changes that overhead. The current plan targets the remaining upsampling projections and their intermediate tensors while preserving complete FP32 reductions and causal history. Further gains require matched measurements, not extrapolated library speedups.
+FLOP counts alone do not predict decoder RTF. Earlier estimates combined matrix throughput with the then-current non-matrix overhead; fusion changes that overhead. The historical plan targeted the remaining upsampling projections and their intermediate tensors while preserving complete FP32 reductions and causal history. Further gains require matched measurements, not extrapolated library speedups.

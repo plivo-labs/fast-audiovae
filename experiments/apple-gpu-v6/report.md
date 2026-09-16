@@ -24,4 +24,4 @@ The same broad matrix decomposition is already in the selected CPU kernels. The 
 
 ## Source tests
 
-The integrated source suite passed 409 tests and 1,959 subtests. One existing pytest parametrization deprecation warning remains. The GPU feature is integrated in main; published v0.3.0 wheels predate it. This does not publish a new wheel release or extend qualification to other Apple generations, CUDA, or long-corpus perceptual evaluation.
+The integrated source suite passed 409 tests and 1,959 subtests. One existing pytest parametrization deprecation warning remained. At the time of this experiment the GPU feature was integrated in main, while the published v0.3.0 wheels predated it. GPU support subsequently shipped in 0.4.0 and is retained in 0.5.0; see [current installation](../../docs/apple-gpu.md). This experiment does not extend qualification to other Apple generations, CUDA, or long-corpus perceptual evaluation.

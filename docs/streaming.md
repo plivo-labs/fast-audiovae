@@ -18,7 +18,7 @@ with decoder.stream() as stream:
 
 No kernel flags or compiler are needed with a supported platform wheel. Use `load(mode="batch")` for full-sequence calls. `decoder.info` reports the selected recipe and any fallback. To prepare the cache ahead of time, run `fast-audiovae setup`; `--mode both` also prepares batch mode. Set `FAST_AUDIOVAE_CACHE` to choose a different cache location.
 
-On supported Apple CPUs, `load()` selects the matrix and state kernels qualified for 40 ms and 80 ms packets. Use `load(threads=4)` for four ONNX inference threads; the default remains one. Individual custom operators retain their validated worker settings, so four inference threads do not imply four workers inside every matrix call. [Current Apple measurements and qualification](streaming-baseline.md).
+On Apple CPUs with verified SME and SME2 support, one-thread streaming selects [the qualified two-projection INT8 recipe](apple-int8.md). `load(threads=4)` retains the validated FP32 streaming kernels; the default remains one thread. Individual custom operators retain their validated worker settings, so four inference threads do not imply four workers inside every matrix call. See [AMD serving](amd-serving.md) and [Intel serving](intel-serving.md) for their automatic streaming recipes.
 
 ### Existing model bundles
 
@@ -52,7 +52,7 @@ with decoder.streaming_decode() as stream:
 
 `latent_chunks` and `play_or_send` are supplied by your application. One-frame chunks emit 40 ms of audio; five-frame chunks emit 200 ms. Chunk sizes can change within a stream, including a shorter final chunk.
 
-The loader uses the same CPU selection policy as full-clip decoding. Inspect the selected backend with:
+The loader selects a recipe for the CPU, streaming mode and effective thread count. Streaming and full-clip decoding can use different recipes. Inspect the selected backend with:
 
 ```sh
 fast-audiovae inspect artifacts --streaming
@@ -101,7 +101,7 @@ The base floating-point path is checked directly against upstream AudioVAE2. INT
 
 All three CPUs passed 540 streaming checks across the same 60 multilingual clips: one-, two- and five-frame chunks, uneven chunks, reset, final partial chunks and independent interleaved streams. Intel and AMD streaming outputs are bitwise identical to their respective canonical full decoders. Apple passed the strict numerical gate with maximum absolute difference 3.13e-6 and worst nonexact SNR 102.2 dB. Apple also passed 60 stored upstream comparisons and an additional 15-check run that included direct upstream streaming comparisons on one clip.
 
-### Streaming projection update
+### Earlier streaming projection update
 
 The [streaming projection recipes](../experiments/streaming-matrix/README.md) improve the first upsampling pair while retaining the full-call graphs and causal history. They use explicitly prepared bundles and one inference thread.
 
@@ -112,9 +112,9 @@ The [streaming projection recipes](../experiments/streaming-matrix/README.md) im
 | Intel Xeon Platinum 8280 VM | 80 ms | 0.37609 | 0.31152 | 17.2% |
 | Intel Xeon Platinum 8280 VM | 160 ms | 0.27842 | 0.24781 | 11.0% |
 
-These are new paired measurements on three frozen multilingual clips, with two warmups and five measured repetitions. Every clip improved at both chunk sizes. Each variant passed 126 timed waveform checks, 72 state checks and 180 complete streams across all 60 multilingual clips at 40, 80 and 160 ms. Intel remained bitwise identical to its accepted full decoder. Apple passed the existing strict tolerances against both accepted and stored upstream outputs, with maximum difference 3.93e-6 against the accepted decoder. [Results and provenance](../benchmarks/streaming/projection.json). Mimi was not rerun in this experiment, so use the earlier comparison below as historical context rather than a freshly matched speed ratio.
+These were paired measurements on three frozen multilingual clips, with two warmups and five measured repetitions. Every clip improved at both chunk sizes. Each variant passed 126 timed waveform checks, 72 state checks and 180 complete streams across all 60 multilingual clips at 40, 80 and 160 ms. Intel remained bitwise identical to its accepted full decoder. Apple passed the existing strict tolerances against both accepted and stored upstream outputs, with maximum difference 3.93e-6 against the accepted decoder. [Results and provenance](../benchmarks/streaming/projection.json). Mimi was not rerun in this experiment, so use the earlier comparison below as historical context rather than a freshly matched speed ratio.
 
-The full-call graph is byte-identical between the paired variants. Its control timings varied by 4.0% on Apple and 0.2% on Intel; no full-call improvement is claimed. The automatic loader retains this projection recipe for Apple CPUs without SME/SME2 and for supported Intel CPUs. Newer Apple CPUs use the selected streaming recipe linked above.
+The full-call graph is byte-identical between the paired variants. Its control timings varied by 4.0% on Apple and 0.2% on Intel; no full-call improvement is claimed. The automatic loader retains this projection recipe for compatible Apple CPUs without SME/SME2. Current supported Intel wheels use [the selected Intel recipe](intel-serving.md); older native payloads can fall back to this projection implementation. Apple CPUs with SME/SME2 use the recipes linked above.
 
 ### Earlier matched one-thread comparison
 
@@ -133,7 +133,7 @@ The table averages per-clip medians across three frozen Bengali, English and Spa
 
 All 405 runs passed waveform and sample-count checks; independent audits checked 25,830 raw calls. Intel and AMD optimized streaming outputs are bitwise identical to their corresponding full outputs. Other paths passed `atol=1e-5`, `rtol=1e-4`, with maximum absolute error below 7.25e-7. These checks establish streaming parity, not equal quality between codecs.
 
-The optimized native kernels were active. Intel and AMD used one-worker graphs with unchanged weights. Automatic preparation now reproduces those schedules. These results must not be mixed with the earlier two- and four-thread measurements below. [Results and provenance](../benchmarks/streaming/one-thread.json).
+The optimized native kernels were active. Intel and AMD used one-worker graphs with unchanged weights. Automatic preparation reproduced those schedules for this campaign; current one-thread recipes are documented above. These results must not be mixed with the earlier two- and four-thread measurements below. [Results and provenance](../benchmarks/streaming/one-thread.json).
 
 ### Earlier multi-thread validation
 
@@ -145,7 +145,7 @@ CPU-only ONNX Runtime 1.29. The following RTFs are medians of three repetitions 
 | AMD EPYC 9654 | 4 | 0.14336 | 0.05700 |
 | Intel Xeon Platinum 8280 VM | 2 | 0.52166 | 0.27539 |
 
-Full-clip regression screens used the same preselected clip and three randomized pairs. AMD median RTF changed from 0.03474 to 0.03394; Intel changed from 0.16860 to 0.17180, a 1.9% increase in time. That small Intel difference remains unresolved by this limited screen. Apple's existing full-call graph and native library are unchanged. These checks do not replace the broader full-clip README measurements or establish a streaming comparison against Mimi.
+Full-clip regression screens used the same preselected clip and three randomized pairs. AMD median RTF changed from 0.03474 to 0.03394; Intel changed from 0.16860 to 0.17180, a 1.9% increase in time. That small Intel difference remains unresolved by this limited screen. Apple's existing full-call graph and native library are unchanged. These checks do not replace the broader historical full-clip measurements or establish a streaming comparison against Mimi.
 
 The new Intel and AMD full outputs are bitwise identical across all 60 clips. Comparing the new output with the accepted AMD output completed all 12 quality metrics with no errors. PESQ is unchanged at 3.71737024; STOI, UTMOS and DNSMOS overall remain 0.934448, 2.251605 and 2.760339 at the displayed precision. At native 48 kHz, only 91 of 25,683,840 samples changed, with maximum difference 5.96e-8. No meaningful degradation was detected on this corpus. This retains the earlier accepted quantization approximation; it is not a claim of exact agreement with the original FP32 decoder or a new human listening study.
 

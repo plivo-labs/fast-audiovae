@@ -1,6 +1,6 @@
-# CPU kernel experiment results
+# Historical FP32 CPU kernel experiment results
 
-**Decoding time is now 16.9% lower on AMD and 26.4% lower on Intel than the previous fast decoder.** Each full campaign passes all 331 validation checks, and every timed clip mean improves. Matching Mimi still requires another **15.2% reduction on AMD** and **32.7% on Intel**.
+**This full-call FP32 campaign reduced decoding time by 16.9% on AMD and 26.4% on Intel against its previous fast decoder.** Each full campaign passes all 331 validation checks, and every timed clip mean improves. Matching Mimi in that campaign would require another **15.2% reduction on AMD** and **32.7% on Intel**. These are historical results; current streaming serving records are [Apple](apple-int8.md), [AMD](amd-serving.md) and [Intel](intel-serving.md).
 
 ## Decoder speed
 
@@ -8,14 +8,14 @@ Lower RTF is better. Compare models within each row; the machines have different
 
 | CPU and campaign | Previous fast | AVX512 + fusions | Stage candidate | Mimi |
 |---|---:|---:|---:|---:|
-| AMD EPYC 9654, 4 threads, latest full campaign | 0.07342 | 0.06501 | **0.06104** | 0.05173 |
-| Intel Xeon Platinum 8280 VM, 2 threads, latest full campaign | 0.34654 | 0.29286 | **0.25510** | 0.17169 |
+| AMD EPYC 9654, 4 threads, this full campaign | 0.07342 | 0.06501 | **0.06104** | 0.05173 |
+| Intel Xeon Platinum 8280 VM, 2 threads, this full campaign | 0.34654 | 0.29286 | **0.25510** | 0.17169 |
 
 On AMD, stage reuse saves another **6.1%** over the fused AVX512 control and is **4.25× as fast as stock AudioVAE2** (0.25961 RTF). Clip improvements range from 15.7% to 18.2%. All repetitions are included, including the slower fifth. Counters showed no cgroup throttling or CPU steal.
 
 Intel's stage/MKL candidate saves **12.9%** over its same-campaign fused control. Clip improvements versus previous fast range from 25.7% to 27.5%; the repeat RTF coefficient of variation is 0.32%. Historical screens remain separate in the evidence file.
 
-Apple's full run passed correctness but showed unexplained timing drift across all models. Its timing is excluded from promotion, and its default remains unchanged. A separate Apple stage prototype passes 270 focused and 12 captured intermediate-output comparisons; this establishes neither full-decoder waveform quality nor speed for that prototype.
+Apple's full run passed correctness but showed unexplained timing drift across all models. Its timing was excluded from promotion and did not change the Apple default in this campaign. A separate Apple stage prototype passes 270 focused and 12 captured intermediate-output comparisons; this establishes neither full-decoder waveform quality nor speed for that prototype.
 
 ## What we implemented
 
@@ -30,7 +30,7 @@ AMD uses direct products in the final three stages, with four time segments. Int
 
 ## Remaining bottleneck
 
-Separate profiles measure the same 6.8-second output, with three calls after two warmups. These are summed kernel wall times per call, not headline RTF. Each column describes that machine's latest candidate.
+Separate profiles measure the same 6.8-second output, with three calls after two warmups. These are summed kernel wall times per call, not headline RTF. Each column describes the candidate from this campaign.
 
 | Remaining work | AMD time / share | Intel time / share |
 |---|---:|---:|
@@ -54,8 +54,8 @@ An isolated AMD 256-channel stage improved from 59.43 to 54.22 ms with LIBXSMM. 
 
 | Check set | Result |
 |---|---|
-| AMD latest full decoder campaign, 60 clips | 331 checks passed, none failed |
-| Intel latest full decoder campaign, 60 clips | 331 checks passed, none failed |
+| AMD full decoder campaign, 60 clips | 331 checks passed, none failed |
+| Intel full decoder campaign, 60 clips | 331 checks passed, none failed |
 | Apple full decoder campaign, 60 clips | 331 checks passed, none failed |
 | Unchanged Apple encoder, 1 and 4 threads | 94 checks passed, none failed |
 

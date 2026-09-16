@@ -1,6 +1,8 @@
-# Multilingual decoder and reconstruction benchmark
+# Historical multilingual full-call benchmark
 
-The default native AudioVAE2 decoder is 4.19 times faster than stock ONNX on Apple M5 Max and 3.42 times faster on AMD EPYC 9654 at four threads. It is 1.92 times faster on the two-vCPU Intel VM. Its reconstruction metrics agree closely with stock. Meta DACVAE leads the aggregate reference-based quality metrics; Mimi leads UTMOS and DNSMOS P.835 predictions. These results describe different tradeoffs, not a universal codec ranking.
+This earlier FP32, full-call campaign measured the then-default native AudioVAE2 decoder at 4.19 times stock ONNX throughput on Apple M5 Max and 3.42 times on AMD EPYC 9654 at four threads, and 1.92 times on the two-vCPU Intel VM. These are not current streaming results. Current serving and qualification records are [Apple](apple-int8.md), [AMD](amd-serving.md) and [Intel](intel-serving.md).
+
+In this FP32 campaign, the optimized decoder's reconstruction metrics agree closely with stock. Meta DACVAE leads the aggregate reference-based quality metrics; Mimi leads UTMOS and DNSMOS P.835 predictions. These results describe different tradeoffs, not a universal codec ranking.
 
 ## Corpus and model contracts
 
@@ -16,15 +18,15 @@ The checkpoints have different latent capacities and output rates. Meta's decode
 
 ## CPU decoder timing
 
-All rows use FP32, batch one, ONNX Runtime 1.29.0, CPUExecutionProvider only and one inter-op thread. Intra-op threads are four on Apple/AMD and two on Intel. This campaign used only CPUs. The optimized rows use the default native path, without optional packed-matrix acceleration.
+All rows use FP32, batch one, ONNX Runtime 1.29.0, CPUExecutionProvider only and one inter-op thread. Intra-op threads are four on Apple/AMD and two on Intel. This campaign used only CPUs. The optimized rows used the then-default native FP32 path, without optional packed-matrix acceleration.
 
-| CPU and threads | Stock AudioVAE2 RTF | Default native RTF | Stock/native speedup | Mimi RTF | Meta DACVAE RTF |
+| CPU and threads | Stock AudioVAE2 RTF | Historical native RTF | Stock/native speedup | Mimi RTF | Meta DACVAE RTF |
 |---|---:|---:|---:|---:|---:|
 | Apple M5 Max, 4 | 0.11351 | 0.02706 | 4.19x | 0.03285 | 0.54146 |
 | AMD EPYC 9654, 4 | 0.26078 | 0.07629 | 3.42x | 0.05400 | 0.66065 |
 | Intel Xeon Platinum 8280 VM, 2 | 0.67968 | 0.35355 | 1.92x | 0.17709 | 2.06885 |
 
-Lower RTF is faster. It is total measured decode time divided by the full generated audio duration, including right hop padding. The timing subset was fixed as the first selected clip per language: ten clips, 94.02 source seconds, one separate warmup per shape and three measured repetitions. Apple and AMD each completed 120 measurements and all 260 numerical/state/causal gates. Intel completed 150 measurements and all 327 gates, including a fifth experimental matrix route. There were no failed gates. Default native AudioVAE2 improved every one of the ten clip means versus stock on all three hosts. Numerical gates use `atol=1e-5, rtol=1e-4`; future-prefix checks apply only to the causal codecs.
+Lower RTF is faster. It is total measured decode time divided by the full generated audio duration, including right hop padding. The timing subset was fixed as the first selected clip per language: ten clips, 94.02 source seconds, one separate warmup per shape and three measured repetitions. Apple and AMD each completed 120 measurements and all 260 numerical/state/causal gates. Intel completed 150 measurements and all 327 gates, including a fifth experimental matrix route. There were no failed gates. The historical native AudioVAE2 decoder improved every one of the ten clip means versus stock on all three hosts. Numerical gates use `atol=1e-5, rtol=1e-4`; future-prefix checks apply only to the causal codecs.
 
 These are fresh full-clip decoder calls, including the Python session wrapper and output-shape checks. Encoding, loading, file I/O, warmup, validation, scoring and profiling are excluded. They do not measure cached streaming, first-audio latency or whole TTS. All 60 clips were validated, although only ten were timed. The same ten inputs were used on all three hosts.
 
@@ -64,11 +66,11 @@ All 60 optimized encoder latents matched upstream bitwise in the separate Apple 
 
 A separate oneMKL 2026.1.0 CPU prototype replaces 12 heavy FP32 matrix nodes, keeping late small products in ONNX Runtime MLAS. Sequential MKL uses ORT-owned row workers, with no GPU or additional BLAS thread pool. At two threads it reduced decoder RTF from 0.35355 to 0.32621, a 7.73% reduction. All ten clip means improved, by 3.77% to 11.33%; 29 of 30 individual observations improved, with one Hindi repeat 2.67% slower. All numerical gates passed under the unchanged tolerances.
 
-The prototype is not a shipped backend or an automatic loader choice. A separate fresh-process memory check measured about 211 MiB more resident memory, including 172 MiB of copied FP32 weights. Its selected libraries and headers occupy about 436 MB on disk. That is a material cost for this gain. The public timing record labels it `fast_mkl` and preserves its separate graph/library hashes; the README table uses the existing default native implementation.
+This particular FP32 prototype was not shipped or selected automatically; current Intel serving uses a separately qualified INT8 implementation. A separate fresh-process memory check measured about 211 MiB more resident memory, including 172 MiB of copied FP32 weights. Its selected libraries and headers occupy about 436 MB on disk. That is a material cost for this gain. The public timing record labels it `fast_mkl` and preserves its separate graph/library hashes; the table above uses the then-default native FP32 implementation.
 
 ## Remaining CPU cost
 
-Separate instrumented profiles of the default native decoder attribute 52.04% of Apple operator time and 73.08% of AMD operator time to MatMul. Fused depthwise/Snake plus standalone Snake account for 36.48% and 17.91%, respectively. These profiles cover one representative shape per host and were excluded from the RTF measurements; their percentages do not decompose every timed recording.
+Separate instrumented profiles of the historical native decoder attribute 52.04% of Apple operator time and 73.08% of AMD operator time to MatMul. Fused depthwise/Snake plus standalone Snake account for 36.48% and 17.91%, respectively. These profiles cover one representative shape per host and were excluded from the RTF measurements; their percentages do not decompose every timed recording.
 
 The native depthwise kernels accumulate seven taps directly; Snake uses vector sine, and adjacent depthwise/Snake operations are fused. Dense matrix multiplication is the largest family in that profile, but the same-clip audit also finds substantial activation and residual-addition costs relative to Mimi. The existing optional AMD packing is a separate layout optimization with a memory cost, not lower-precision compression. Further matrix or epilogue changes need the same waveform and per-clip timing gates before becoming defaults. This campaign does not establish a further speedup from a proposed kernel.
 
@@ -83,9 +85,9 @@ Intel's [separate 6.8-second technical profile](../benchmarks/intel-profile.json
 | Phase finishing | 1.84% |
 | Other operations | 1.96% |
 
-The deeper [CPU optimization plan](optimization-plan.md) maps those costs to exact matrix shapes, tensor sizes and native instructions. It prioritizes pre-Snake/DW/post-Snake fusion, ordered residual additions, and local time tiles across complete residual stages, with an additional guarded AVX512 path for Intel. These are proposed changes, not newly measured speedups. The plan also distinguishes the existing matrix-library experiments from new work that removes full intermediate tensors.
+The deeper [CPU optimization plan](optimization-plan.md) maps those costs to exact matrix shapes, tensor sizes and native instructions. It prioritizes pre-Snake/DW/post-Snake fusion, ordered residual additions, and local time tiles across complete residual stages, with an additional guarded AVX512 path for Intel. These were proposals at the time of this campaign, not measured speedups in this record. Later work is documented in the current serving guides linked above. The plan also distinguishes the existing matrix-library experiments from new work that removes full intermediate tensors.
 
-The two-vCPU VM already uses two workers; a four-thread technical screen was 3.47% slower. Matching Mimi would require 49.91% less time than the default native decoder, or 45.71% less than the MKL prototype. No tested change closes that remaining gap. New kernels must pass the unchanged waveform, causal-prefix, changing-length and concurrency checks, then improve the fixed per-clip timing comparison before promotion.
+The two-vCPU VM already uses two workers; a four-thread technical screen was 3.47% slower. Matching Mimi would require 49.91% less time than the default native decoder, or 45.71% less than the MKL prototype. No tested change in this campaign closed that remaining gap. New kernels must pass the unchanged waveform, causal-prefix, changing-length and concurrency checks, then improve the fixed per-clip timing comparison before promotion.
 
 ## Inspect or repeat the measurements
 

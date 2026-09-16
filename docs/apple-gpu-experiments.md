@@ -4,9 +4,11 @@ These September 13, 2026 experiments use the original AudioVAE2 decoder weights 
 
 Each paired timing test uses three 960 ms speech crops, one warmup sweep and two measured sweeps. The public AudioVAE2 API includes owned input upload, validation of audio and all 26 histories, completed GPU execution and owned CPU-ready output. First compilation is reported separately. These are short measurements, not corpus or long-stream qualification.
 
-The latest [numerical repair](../experiments/apple-gpu-v4/report.md) resolves the subsequent matrix candidate's internal-state failure. The selected hybrid with pointwise matrix calls passed 60 waveform checks and 1,014 state comparisons at unchanged tolerances. Its matched short tests reduced back-to-back decoding time by 53.95% at 40 ms and 56.44% at 80 ms; a separate paced 80 ms probe improved mean service time by 17.84%. This candidate is now integrated in the optional public GPU loader; the historical V2 results below and [V3 failure](../experiments/apple-gpu-v3/report.md) remain retained. CPU defaults remain unchanged. See the [integrated implementation](apple-gpu.md) for current loading and validation.
+The V4 [numerical repair](../experiments/apple-gpu-v4/report.md) resolves the subsequent matrix candidate's internal-state failure. The selected hybrid with pointwise matrix calls passed 60 waveform checks and 1,014 state comparisons at unchanged tolerances. Its matched short tests reduced back-to-back decoding time by 53.95% at 40 ms and 56.44% at 80 ms; a separate paced 80 ms probe improved mean service time by 17.84%. V6 subsequently integrated this candidate in the optional public GPU loader; the historical V2 results below and [V3 failure](../experiments/apple-gpu-v3/report.md) remain retained. CPU remains the default device. See the [integrated implementation](apple-gpu.md) for current loading and validation.
 
 The subsequent [direct upstream GPU comparison](../experiments/apple-gpu-v5/report.md) uses the actual published AudioVAE2 class, original checkpoint and official streaming API on MPS, retaining weight normalization. All 80 waveform comparisons passed. In that matched short run, upstream RTF was 0.16657/0.09148 at 40/80 ms; the repaired candidate was 0.05832/0.03020. This reference is distinct from the original-weight port used in V4, and these back-to-back timings are distinct from paced-arrival measurements.
+
+The [V6 integrated comparison](../experiments/apple-gpu-v6/report.md) is the current published GPU evidence. It measured the public loader at RTF 0.05770/0.03206 for 40/80 ms, alongside actual upstream AudioVAE2 and Pocket Mimi GPU in the same short session. This implementation is included in v0.5.0. The earlier timing sessions below are preserved separately.
 
 ## Historical V2 matched comparison
 
@@ -20,13 +22,13 @@ All rows below were measured in the same session on the same three speech segmen
 | Selected AudioVAE2 CPU, one thread | 0.12299 | 0.08398 |
 | Pocket continuous Mimi GPU | Not supported | 0.06597 |
 
-The preferred candidate is compilation with the original history representation: 18.02% lower time at 40 ms and 18.35% at 80 ms than the original GPU implementation in this session. Every paired comparison improved. At 80 ms its pooled time was 3.25% above Pocket Mimi GPU and 18.89% below the selected CPU route. At 40 ms it remained 2.60% slower than CPU. These short results do not establish equivalence or statistical significance; individual streams varied.
+The preferred V2 candidate was compilation with the original history representation: 18.02% lower time at 40 ms and 18.35% at 80 ms than the original GPU implementation in this session. Every paired comparison improved. At 80 ms its pooled time was 3.25% above Pocket Mimi GPU and 18.89% below the selected CPU route. At 40 ms it remained 2.60% slower than CPU. These short results do not establish equivalence or statistical significance; individual streams varied.
 
 AudioVAE2 emits 48 kHz audio from 25 Hz latents; Pocket Mimi emits 24 kHz from 12.5 Hz latents. Both return completed CPU-ready output. AudioVAE2 additionally checks all retained history values on every call; the Mimi adapter validates input/output but not every history value. These are matched packet workloads, with this known API difference.
 
 All 108 streams passed the original CPU ONNX references and consumed/emitted exactly the expected frames and samples. Maximum waveform absolute difference in this run was 5.06639e-7. There were no new compiled graphs during the qualification, warmup or measured sweeps. The run took 16.49 seconds overall, including 8.44 seconds in ordinary GPU calls. Initial compiler calls were excluded from RTF and recorded separately: approximately 1.09 seconds for 40 ms and 0.73 seconds for 80 ms for the preferred candidate with populated compiler caches. These are not cold-install compilation-time promises.
 
-At the end of V2, original-history compilation was the preferred candidate. Projected-overlap reuse and standalone Snake remained experiments. V4 subsequently added the qualified hybrid matrix form; V6 integrates it in the public loader. CPU kernel selection is unchanged.
+At the end of V2, original-history compilation was the preferred candidate. Projected-overlap reuse and standalone Snake remained experiments. V4 subsequently added the qualified hybrid matrix form; V6 integrated it in the public loader. These GPU experiments did not change CPU kernel selection.
 
 ## Candidate results
 
