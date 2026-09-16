@@ -1,0 +1,180 @@
+{
+  "version": "0.5.0",
+  "wheel_build": 1,
+  "status": "passed",
+  "runtime_commit": "283efae",
+  "original_release_tag_preserved": true,
+  "source_tag": "v0.5.0-build1",
+  "assets": [
+    {
+      "kind": "apple",
+      "name": "fast_audiovae-0.5.0-1-py3-none-macosx_26_0_arm64.whl",
+      "sha256": "c9ae1916d578643b64b14c86ffc33e4f233fb21f06e0a2ae9447ef4dcb463ed0",
+      "bytes": 1566997,
+      "gpu_modules": [
+        "gpu.py",
+        "mps_decoder.py",
+        "mps_compiled.py",
+        "cuda_decoder.py",
+        "cuda_kernels.py"
+      ],
+      "requirements": [
+        "numpy>=1.26",
+        "onnxruntime==1.30.0; sys_platform == \"darwin\" and platform_machine == \"arm64\"",
+        "onnxruntime==1.29.0; sys_platform != \"darwin\" or platform_machine != \"arm64\"",
+        "onnx==1.22.0",
+        "torch>=2.8; extra == \"encoder\"",
+        "torch<2.15,>=2.14; extra == \"gpu\"",
+        "pytest>=8; extra == \"test\""
+      ],
+      "record_verified": true,
+      "native_payload": "apple-payload",
+      "native_payload_manifest_sha256": "8dd907c78a1bb9366f28dabda70eab77462ecc0fd21c4e44c38590aee9ac0cbe",
+      "native_payload_unchanged": true
+    },
+    {
+      "kind": "linux",
+      "name": "fast_audiovae-0.5.0-1-py3-none-linux_x86_64.whl",
+      "sha256": "ff32d2036c4565038e951f94ae449d5ade47e0c50d02887c7c347ad8bca92bf6",
+      "bytes": 195010227,
+      "gpu_modules": [
+        "gpu.py",
+        "mps_decoder.py",
+        "mps_compiled.py",
+        "cuda_decoder.py",
+        "cuda_kernels.py"
+      ],
+      "requirements": [
+        "numpy>=1.26",
+        "onnxruntime==1.30.0; sys_platform == \"darwin\" and platform_machine == \"arm64\"",
+        "onnxruntime==1.29.0; sys_platform != \"darwin\" or platform_machine != \"arm64\"",
+        "onnx==1.22.0",
+        "torch>=2.8; extra == \"encoder\"",
+        "torch<2.15,>=2.14; extra == \"gpu\"",
+        "pytest>=8; extra == \"test\""
+      ],
+      "record_verified": true,
+      "native_payload": "linux-payload",
+      "native_payload_manifest_sha256": "6886a0f55d34a1e0e1c3f2fb343f7ea086002bc6cfe178fe890f2b748ddc93e2",
+      "native_payload_unchanged": true
+    },
+    {
+      "kind": "portable",
+      "name": "fast_audiovae-0.5.0-1-py3-none-any.whl",
+      "sha256": "5104c92902abdc5a5af7734575e6d62aeda95611b465d3c763a6f978455fef51",
+      "bytes": 606025,
+      "gpu_modules": [
+        "gpu.py",
+        "mps_decoder.py",
+        "mps_compiled.py",
+        "cuda_decoder.py",
+        "cuda_kernels.py"
+      ],
+      "requirements": [
+        "numpy>=1.26",
+        "onnxruntime==1.30.0; sys_platform == \"darwin\" and platform_machine == \"arm64\"",
+        "onnxruntime==1.29.0; sys_platform != \"darwin\" or platform_machine != \"arm64\"",
+        "onnx==1.22.0",
+        "torch>=2.8; extra == \"encoder\"",
+        "torch<2.15,>=2.14; extra == \"gpu\"",
+        "pytest>=8; extra == \"test\""
+      ],
+      "record_verified": true,
+      "native_payload": null,
+      "native_payload_manifest_sha256": null,
+      "native_payload_unchanged": false
+    },
+    {
+      "kind": "sdist",
+      "name": "fast_audiovae-0.5.0.tar.gz",
+      "sha256": "22b91cf726abc1efccd0c5c76c5f2b43666da69ad8c95fdc493f85aaf78ab498",
+      "bytes": 467321
+    }
+  ],
+  "preserved_implementations": [
+    {
+      "wheel": "fast_audiovae-0.5.0-1-py3-none-linux_x86_64.whl",
+      "changed_package_files": [
+        "__init__.py",
+        "automatic.py",
+        "cuda_decoder.py",
+        "cuda_kernels.py",
+        "gpu.py"
+      ],
+      "unchanged_native_files": 87,
+      "unchanged_cpu_and_apple_gpu_runtime": true
+    },
+    {
+      "wheel": "fast_audiovae-0.5.0-1-py3-none-any.whl",
+      "changed_package_files": [
+        "__init__.py",
+        "automatic.py",
+        "cuda_decoder.py",
+        "cuda_kernels.py",
+        "gpu.py"
+      ],
+      "unchanged_native_files": 0,
+      "unchanged_cpu_and_apple_gpu_runtime": true
+    },
+    {
+      "wheel": "fast_audiovae-0.5.0-1-py3-none-macosx_26_0_arm64.whl",
+      "changed_package_files": [
+        "__init__.py",
+        "automatic.py",
+        "cuda_decoder.py",
+        "cuda_kernels.py",
+        "gpu.py"
+      ],
+      "unchanged_native_files": 24,
+      "unchanged_cpu_and_apple_gpu_runtime": true
+    }
+  ],
+  "installed_apple_cpu": {
+    "status": "passed",
+    "device": "cpu",
+    "selected": "native",
+    "recipe": "apple_stream_int8",
+    "wheel_sha256": "c9ae1916d578643b64b14c86ffc33e4f233fb21f06e0a2ae9447ef4dcb463ed0",
+    "package_files_verified": 227,
+    "calls": 4,
+    "frames": 4,
+    "reset_exact": true,
+    "torch_imported": false,
+    "triton_imported": false
+  },
+  "installed_linux_cuda": {
+    "status": "passed",
+    "device": "gpu",
+    "selected": "torch_cuda_fused",
+    "recipe": "nvidia_cuda_fused_v1",
+    "wheel_sha256": "ff32d2036c4565038e951f94ae449d5ade47e0c50d02887c7c347ad8bca92bf6",
+    "package_files_verified": 290,
+    "calls": 4,
+    "frames": 4,
+    "reset_exact": true,
+    "torch_imported": true,
+    "triton_imported": true
+  },
+  "cuda_tests_passed": 27,
+  "packaging_test_passed": true,
+  "pip_preferred_build_1": {
+    "apple": "fast_audiovae-0.5.0-1-py3-none-macosx_26_0_arm64.whl",
+    "linux": "fast_audiovae-0.5.0-1-py3-none-linux_x86_64.whl"
+  },
+  "numerical_and_timing_qualification": "../../benchmarks/nvidia-cuda/summary.json",
+  "packaging_notes": [
+    "Wheel RECORD entries and all packaged runtime/resource/native bytes were verified.",
+    "The final platform wheels contain exactly the same five modified runtime modules as the installed portable wheel used for longer CUDA qualification.",
+    "Apple native selection and four short decoding calls were checked outside the sandbox; no Torch or Triton imports occurred.",
+    "Original CPU native payloads and Apple GPU implementation were retained unchanged.",
+    "The current source archive replaces the original source asset; earlier wheel assets and the original Git tag remain available."
+  ],
+  "evidence_sha256": {
+    "release-artifacts.json": "aa630caa205ee12e4a184b326eba7faa66fbf7e014912a17d2a1841fc61d0801",
+    "preserved-cpu-apple.json": "faff3e4096e485f8931066d1e16fcb4e58320e7259c2690fe6f8d6bde15c55c6",
+    "apple-cpu-native-smoke.json": "d7a3b75451d02db4800060430cf651123786cc2f02db74351d58882bf30b6e15",
+    "release-smoke.json": "f88ea4fabffad479a4e95559b759c8e14522e1a6cc4cea3cdcc220f9be31b3ff",
+    "release-tests.txt": "2f91083fcf0c9745008f5b2d5ffee59c22b05ba27f4474b89e1eccfa9a14d532",
+    "packaging-test.txt": "f56db177c565d2584d090e974effd184a62e1af6c11c13c0a6b25256e11580cf"
+  }
+}

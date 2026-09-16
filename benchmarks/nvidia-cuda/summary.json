@@ -1,0 +1,251 @@
+{
+  "status": "passed",
+  "date": "2026-09-16",
+  "recipe": "nvidia_cuda_fused_v1",
+  "runtime": {
+    "torch": "2.14.0+cu126",
+    "cuda": "12.6",
+    "cudnn": 92501,
+    "gpu": "NVIDIA H100 NVL"
+  },
+  "protocol": {
+    "precision": "FP32",
+    "tf32": false,
+    "threads": 1,
+    "mode": "causal streaming",
+    "packet_ms": [
+      40,
+      80
+    ],
+    "sample_rate": 48000,
+    "latent_rate": 25,
+    "reference": "Original upstream CUDA decoder and original checkpoint",
+    "performance_control": "Previous unmodified compiled CUDA graph",
+    "timing_boundary": "Owned CPU latent input to completed owned CPU audio",
+    "timing_rounds": 2,
+    "warmup": "One full first clip per arm and packet size",
+    "full_clip_selection": "All latent clips in the specified archives; no cropping",
+    "state_checks": "First, last, and every configured interval, plus mixed-size transitions",
+    "state_stride": 32,
+    "scope": "Numerical equivalence and decoder latency; no perceptual-model rerun"
+  },
+  "cohort": {
+    "recordings": 60,
+    "languages": 10,
+    "decoded_seconds": 535.08,
+    "synthetic": "Four seconds each of silence and quiet sine, encoded with the original encoder posterior mean",
+    "expressive_recordings": 15,
+    "expressive_source_seconds": 66.549875,
+    "expressive_categories": [
+      "laughter",
+      "screaming",
+      "shouting",
+      "human whistling"
+    ],
+    "input_sample_rate": 16000,
+    "output_sample_rate": 48000
+  },
+  "rtf": [
+    {
+      "arm": "previous_compiled",
+      "packet_ms": 40,
+      "rtf": 0.016225240258542446,
+      "audio_seconds": 1070.16,
+      "decode_seconds": 17.363603115081787,
+      "min_clip_rtf": 0.01617588723699252,
+      "max_clip_rtf": 0.016336678271437737,
+      "max_packet_ms": 1.1565238237380981,
+      "deadline_misses": 0
+    },
+    {
+      "arm": "previous_compiled",
+      "packet_ms": 80,
+      "rtf": 0.008800328650912192,
+      "audio_seconds": 1070.16,
+      "decode_seconds": 9.417759709060192,
+      "min_clip_rtf": 0.00875670218256989,
+      "max_clip_rtf": 0.008899442413273978,
+      "max_packet_ms": 1.2843087315559387,
+      "deadline_misses": 0
+    },
+    {
+      "arm": "public_cuda",
+      "packet_ms": 40,
+      "rtf": 0.01458832269346909,
+      "audio_seconds": 1070.16,
+      "decode_seconds": 15.611839413642883,
+      "min_clip_rtf": 0.014523754974729134,
+      "max_clip_rtf": 0.015055405055271818,
+      "max_packet_ms": 3.8139447569847107,
+      "deadline_misses": 0
+    },
+    {
+      "arm": "public_cuda",
+      "packet_ms": 80,
+      "rtf": 0.007423995051708707,
+      "audio_seconds": 1070.16,
+      "decode_seconds": 7.944862544536591,
+      "min_clip_rtf": 0.007376224367004453,
+      "max_clip_rtf": 0.00767567809544453,
+      "max_packet_ms": 3.7312060594558716,
+      "deadline_misses": 0
+    }
+  ],
+  "qualification": {
+    "long_streaming": {
+      "comparisons": 43245,
+      "failed": 0,
+      "max_abs": 1.4960765838623047e-05,
+      "rms": 1.0415996380585799e-07,
+      "groups": {
+        "waveform": {
+          "comparisons": 20380,
+          "failed": 0,
+          "max_abs": 1.284480094909668e-05
+        },
+        "control_waveform": {
+          "comparisons": 20380,
+          "failed": 0,
+          "max_abs": 1.4960765838623047e-05
+        },
+        "history": {
+          "comparisons": 1558,
+          "failed": 0,
+          "max_abs": 1.1444091796875e-05
+        },
+        "whole_clip": {
+          "comparisons": 124,
+          "failed": 0,
+          "max_abs": 1.284480094909668e-05
+        },
+        "packet_partition": {
+          "comparisons": 60,
+          "failed": 0,
+          "max_abs": 1.2516975402832031e-06
+        },
+        "continuous_waveform": {
+          "comparisons": 701,
+          "failed": 0,
+          "max_abs": 2.905726432800293e-06
+        },
+        "stream_isolation": {
+          "comparisons": 36,
+          "failed": 0,
+          "max_abs": 3.8743019104003906e-07
+        },
+        "reset": {
+          "comparisons": 3,
+          "failed": 0,
+          "max_abs": 1.341104507446289e-07
+        },
+        "input_validation": {
+          "comparisons": 3,
+          "failed": 0,
+          "max_abs": 2.086162567138672e-07
+        }
+      },
+      "failures": [],
+      "tolerance": {
+        "atol": 1e-05,
+        "rtol": 0.0001
+      }
+    },
+    "expressive_streaming_and_batch": {
+      "comparisons": 2649,
+      "failed": 0,
+      "max_abs": 8.702278137207031e-06,
+      "rms": 1.343025422073701e-07,
+      "groups": {
+        "waveform": {
+          "comparisons": 2511,
+          "failed": 0,
+          "max_abs": 7.53253698348999e-06
+        },
+        "history": {
+          "comparisons": 123,
+          "failed": 0,
+          "max_abs": 8.702278137207031e-06
+        },
+        "batch": {
+          "comparisons": 15,
+          "failed": 0,
+          "max_abs": 3.904104232788086e-06
+        }
+      },
+      "failures": [],
+      "tolerance": {
+        "atol": 1e-05,
+        "rtol": 0.0001
+      }
+    },
+    "continuous": {
+      "seconds": 60.04,
+      "frames": 1501,
+      "packets": 701,
+      "pattern_frames": [
+        1,
+        2,
+        3,
+        1,
+        5,
+        2,
+        1
+      ],
+      "reset_between_source_clips": false,
+      "description": "Continuous concatenation of distinct existing latent clips; no exported audio"
+    },
+    "contracts": {
+      "output_ownership": {
+        "passed": true,
+        "retained_arrays": 36
+      },
+      "independent_streams": 3,
+      "reset_empty_flush": true,
+      "invalid_input_preserves_state": true,
+      "closed_stream_rejected": true
+    },
+    "local_regression": {
+      "command": "pytest -q -m 'not native'",
+      "passed": 566,
+      "skipped": 24,
+      "subtests_passed": 1963,
+      "warning": "Existing pytest parametrization deprecation"
+    },
+    "cuda_tests": {
+      "files": [
+        "tests/test_cuda_api.py",
+        "tests/test_cuda_kernels.py"
+      ],
+      "passed": 27
+    }
+  },
+  "weights": {
+    "revision": "ecb511b96675f041424b42f148bf72e301262586",
+    "onnx_files": {
+      "audio_vae_decoder.onnx": "fdd20e200675ab9649bf33f16bc5974101ba5cf47ab89fbfe29f3d36ff6c3c84",
+      "audio_vae_decoder.onnx.data": "3b76bd57356e96893655bd24a364989e016c5af2fc8c29195caaefb4eccf5143"
+    },
+    "original_checkpoint_sha256": "94b5d51e107e0507d4acc976cfdadb64edd6fd06d1f751dadbf2fd1594274bf1"
+  },
+  "source_sha256": {
+    "src/fast_audiovae/__init__.py": "ed4e486b8296d86064d0da1aa8f17fefab208d08dc0229a7c04b072a619180ba",
+    "src/fast_audiovae/automatic.py": "9b88ef3f5b58f5985a0a89d244f233a719bdf7913297c3d818efd2be163a820a",
+    "src/fast_audiovae/gpu.py": "72f1d55d4441e3a930282cf7e52bad2a2227cfa82a49cd407085b3bb769ed8e1",
+    "src/fast_audiovae/cuda_decoder.py": "4cacff6fba443cd70d9e2b5080eb2ed6ff6ff4f707d6272e1189e8d80b4cdb7c",
+    "src/fast_audiovae/cuda_kernels.py": "42d086ddb167c53032ac7fc59fde3c0288d7e81f17b3c116f43ccb79c1753f0c"
+  },
+  "evidence_sha256": {
+    "validation-final.json": "c8c656ecd40617b4030c93e77cf1e0268c28638e0e07ac7db8b25c4debff04c3",
+    "expressive-final-r2.json": "2d0f732c91575c518a22b2fbc4c14e826a488f934ca1f9a115846e4f082b1128",
+    "unit-final-r2.txt": "f02a0ed30e8d05ddf5a49f8e6c611d4833cf499206961f3cf13428cc74299058",
+    "final-full-tests.txt": "be7996bdc6efa3f6dbc948547d5e23acbc7b879a1861b9250353c3ad1e12e26b"
+  },
+  "tested_wheel_sha256": "503d6280298143e4c0f92f18786bdbf1ace25104427bb9ef1c77ef21f51bde25",
+  "notes": [
+    "Long qualification used an installed portable wheel. Release 0.5.0 build 1 packages the same runtime bytes; platform-wheel checks are in docs/releases/v0.5.0-build1-validation.json.",
+    "The earlier bare-kernel screen measured RTF 0.01337/0.00690. The public decoder adds per-packet finite validation, rollback state storage and API handling; its measured RTF is reported here.",
+    "Numerical parity is within absolute plus relative tolerance, not bit equality or a new perceptual MOS evaluation.",
+    "GPU is selected explicitly; CPU remains the default.",
+    "Performance is measured on H100 NVL only; other compatible NVIDIA GPUs have not been qualified."
+  ]
+}

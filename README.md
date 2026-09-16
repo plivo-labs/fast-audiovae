@@ -1,6 +1,6 @@
 # fast-audiovae
 
-Fast inference for VoxCPM2's AudioVAE2 decoder, with optimized CPU kernels and optional Apple GPU execution. Latents `[1, 64, L]` at 25 Hz produce mono audio `[1, 1, 1920*L]` at 48 kHz. Supports full-clip and stateful streaming decoding.
+Fast inference for VoxCPM2's AudioVAE2 decoder, with optimized CPU kernels and optional Apple or NVIDIA GPU execution. Latents `[1, 64, L]` at 25 Hz produce mono audio `[1, 1, 1920*L]` at 48 kHz. Supports full-clip and stateful streaming decoding.
 
 ## Run
 
@@ -11,6 +11,8 @@ python -m pip install fast-audiovae==0.5.0 --find-links https://github.com/plivo
 ```
 
 This installs the CPU runtime and kernels without PyTorch or GPU dependencies. The wheel includes the small GPU integration code, but its dependencies are optional.
+
+The refreshed 0.5.0 wheels use build 1. Already installed 0.5.0? Add `--force-reinstall --no-deps` to the install command to refresh the package without reinstalling dependencies.
 
 With uv, use `uv pip install` with the same arguments. The first load downloads the pinned weights and prepares a local cache. Native wheels include the kernels and their CPU dependencies; no compiler or kernel flags are needed.
 
@@ -33,13 +35,13 @@ The native wheels include the validated AMD and Intel kernels for one-thread str
 
 Native wheels currently cover Apple ARM on macOS 26.2 or newer and compatible Intel/AMD Linux x86 systems with glibc 2.38 or newer. The loader also checks native library compatibility before using them.
 
-For Apple GPU support, add the optional `gpu` extra:
+For Apple or NVIDIA GPU support, add the optional `gpu` extra:
 
 ```sh
 python -m pip install 'fast-audiovae[gpu]==0.5.0' --find-links https://github.com/plivo-labs/fast-audiovae/releases/expanded_assets/v0.5.0
 ```
 
-The extra adds PyTorch 2.14.x alongside CPU support, so both CPU and Apple GPU execution are available. CPU remains the default; GPU runs only when you select `load(device="gpu")`. GPU loading prepares the optimized 40/80 ms paths automatically; first compilation takes extra time. [GPU usage and validation](docs/apple-gpu.md).
+The extra adds PyTorch 2.14.x alongside CPU support. CPU remains the default; GPU runs only when you select `load(device="gpu")`. The loader selects Apple MPS or NVIDIA CUDA and prepares the optimized 40/80 ms paths automatically; first compilation takes extra time. NVIDIA requires Linux x86-64, a CUDA-enabled PyTorch build and an Ampere or newer GPU. [Apple GPU validation](docs/apple-gpu.md) and [NVIDIA GPU validation](docs/nvidia-gpu.md).
 
 ## Decoder speed
 
@@ -94,6 +96,15 @@ Apple GPU causal streaming on the same M5 Max, using PyTorch 2.14.0, float32 and
 | Pocket Mimi GPU | 24 kHz | n/a | 0.0634 |
 
 Short matched check on three 960 ms multilingual segments, with one warmup and two measured repetitions. These are back-to-back stateful streaming calls returning completed CPU-ready audio, with load and compilation excluded. At 80 ms, optimized AudioVAE2 used about half Mimi's decoding time in this check. Paced live-stream latency can differ. Waveform and history checks passed; an additional eight-second continuation passed at both packet sizes. [GPU protocol and results](experiments/apple-gpu-v6/report.md).
+
+Version 0.5.0 build 1 on NVIDIA H100 NVL, causal streaming, FP32, one host thread:
+
+| Output chunk | Previous compiled CUDA RTF | Updated CUDA default RTF | Less decoding time |
+| --- | ---: | ---: | ---: |
+| 40 ms | 0.01623 | **0.01459** | 10.1% |
+| 80 ms | 0.00880 | **0.00742** | 15.6% |
+
+All 60 multilingual recordings, totaling 535 seconds, with two matched timing rounds. These are installed-package timings including per-packet safety checks and completed CPU audio, with loading and compilation excluded. The earlier bare-kernel screen measured 0.01337/0.00690; those are not the public API numbers above. [NVIDIA validation](docs/nvidia-gpu.md).
 
 ## Reconstruction quality
 
