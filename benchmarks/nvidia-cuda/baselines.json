@@ -1,0 +1,79 @@
+{
+  "scope": "Retained short NVIDIA baseline measurements; not a matched comparison with the later public package qualification.",
+  "runtime": {
+    "torch": "2.14.0+cu126",
+    "cuda": "12.6",
+    "cudnn": 92501,
+    "gpu": "NVIDIA H100 NVL",
+    "tf32": false,
+    "autocast": false,
+    "threads": 1
+  },
+  "protocol": {
+    "mode": "causal streaming",
+    "sample_rate": 48000,
+    "precision": "FP32",
+    "clips": [
+      "hi_in_00099_1919",
+      "bn_in_00151_1818",
+      "en_us_00103_1779",
+      "es_419_00060_1994"
+    ],
+    "crop": "First 960ms, reset at crop start",
+    "packets_ms": [
+      40,
+      80
+    ],
+    "warmup_sweeps": 1,
+    "measured_sweeps": 2,
+    "baseline": "Actual upstream CUDA, weight normalization retained",
+    "boundary": "Owned CPU latent input through completed owned CPU audio output; finite audio check included; state checking outside timing",
+    "scope": "Decoder only; no perceptual metric or encoder benchmark; short screen"
+  },
+  "original_audiovae2": [
+    {
+      "arm": "stock_cuda",
+      "packet_ms": 40,
+      "rtf": 0.11643149482551962,
+      "min_clip_rtf": 0.11544953255603711,
+      "max_clip_rtf": 0.11914623901247978
+    },
+    {
+      "arm": "stock_cuda",
+      "packet_ms": 80,
+      "rtf": 0.058847757948872946,
+      "min_clip_rtf": 0.05827193769315879,
+      "max_clip_rtf": 0.05965545618285736
+    }
+  ],
+  "pocket_mimi": {
+    "rtf": 0.028182141249999404,
+    "protocol": {
+      "packet_ms": 80,
+      "clips": [
+        "hi_in_00099_1919",
+        "bn_in_00151_1818",
+        "en_us_00103_1779",
+        "es_419_00060_1994"
+      ],
+      "duration_ms": 960,
+      "measured_sweeps": 2,
+      "warmup_sweeps": 1,
+      "sample_rate": 24000,
+      "boundary": "Owned CPU latent input to completed owned CPU audio; finite waveform validation included, stream construction excluded",
+      "caveat": "Original Pocket PyTorch CUDA decoder; not a separately optimized CUDA Mimi implementation; encode excluded; 40ms unsupported"
+    },
+    "all_checks_passed": true
+  },
+  "original_audiovae2_all_checks_passed": true,
+  "source_reports_sha256": {
+    "compiled-r2.json": "12d8345d82359de6440326927d6532cacc38254c21b47ff259df3bfa8eded19f",
+    "mimi-results.json": "c22f71152f5c6101f7b4876190e3190212ce05226f6087a860ddba1949c165ce"
+  },
+  "current_package_results": "summary.json",
+  "notes": [
+    "Mimi ran separately on the same idle GPU using the same four 960 ms fixtures.",
+    "Original stock AudioVAE2 retains weight normalization and upstream CUDA streaming; it is not the previous compiled control.",
+    "No new inference or benchmark was run when summarizing these records."
+  ]
+}
