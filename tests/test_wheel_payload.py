@@ -16,7 +16,7 @@ from fast_audiovae import build_resources
 from test_apple_payload import builds, inert_audit, packager
 
 ROOT = Path(__file__).resolve().parents[1]
-GPU_MODULES = ("gpu.py", "mps_decoder.py", "mps_compiled.py")
+GPU_MODULES = ("gpu.py", "mps_decoder.py", "mps_compiled.py", "cuda_decoder.py", "cuda_kernels.py")
 
 
 def assert_optional_gpu_metadata(raw):
@@ -59,8 +59,9 @@ from pathlib import Path
 import sys
 class RejectGPU(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path=None, target=None):
-        if fullname == 'torch' or fullname.startswith('torch.') or fullname in (
-                'fast_audiovae.gpu', 'fast_audiovae.mps_decoder', 'fast_audiovae.mps_compiled'):
+        if fullname.split('.')[0] in ('torch', 'triton') or fullname in (
+                'fast_audiovae.gpu', 'fast_audiovae.mps_decoder', 'fast_audiovae.mps_compiled',
+                'fast_audiovae.cuda_decoder', 'fast_audiovae.cuda_kernels'):
             raise AssertionError('CPU wheel import reached optional GPU module: ' + fullname)
 sys.meta_path.insert(0, RejectGPU())
 sys.path.insert(0, sys.argv[1])

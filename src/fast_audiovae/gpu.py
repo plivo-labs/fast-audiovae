@@ -1,4 +1,4 @@
-"""Explicit Apple MPS inference. Importing this module does not import Torch."""
+"""Explicit GPU inference. Importing this module does not import Torch."""
 from __future__ import annotations
 
 import hashlib
@@ -26,16 +26,28 @@ def _policy():
         os.environ[name] = "0"
 
 
+def _cuda_platform():
+    return platform.system() == "Linux" and platform.machine().lower() in ("x86_64", "amd64")
+
+
 def _torch():
-    if platform.system() != "Darwin" or platform.machine().lower() not in ("arm64", "aarch64"):
-        raise RuntimeError("device='gpu' requires Apple Silicon macOS with MPS; CPU fallback is disabled")
-    _policy()
+    cuda = _cuda_platform()
+    if not cuda and (platform.system() != "Darwin" or platform.machine().lower() not in ("arm64", "aarch64")):
+        raise RuntimeError("device='gpu' requires Apple Silicon macOS or NVIDIA CUDA on Linux x86-64; CPU fallback is disabled")
+    if not cuda:
+        _policy()
     try:
         torch = importlib.import_module("torch")
     except ImportError as error:
         raise RuntimeError("GPU decoding requires the optional dependency: pip install 'fast-audiovae[gpu]'") from error
     if torch.__version__.split("+")[0].split(".")[:2] != ["2", "14"]:
         raise RuntimeError("GPU decoding requires PyTorch 2.14.x from fast-audiovae[gpu]")
+    if cuda:
+        if not torch.cuda.is_available():
+            raise RuntimeError("CUDA is unavailable; install a CUDA-enabled PyTorch build. An explicit GPU request never falls back to CPU")
+        if torch.cuda.get_device_capability()[0] < 8:
+            raise RuntimeError("The CUDA kernels require an NVIDIA GPU with compute capability 8.0 or newer")
+        return torch
     if not torch.backends.mps.is_built() or not torch.backends.mps.is_available():
         raise RuntimeError("MPS is unavailable; an explicit GPU request never falls back to CPU")
     return torch
@@ -45,7 +57,7 @@ def _options(mode, threads, offline, prefer_custom, build_native=False):
     if mode not in ("batch", "streaming", "both"):
         raise ValueError("mode must be batch, streaming or both")
     if type(threads) is not int or threads != 1:
-        raise ValueError("GPU decoding requires threads=1; CPU worker counts do not control MPS")
+        raise ValueError("GPU decoding requires threads=1; CPU worker counts do not control GPU execution")
     if any(type(value) is not bool for value in (offline, prefer_custom, build_native)):
         raise ValueError("offline, prefer_custom and build_native must be booleans")
     if build_native:
@@ -84,13 +96,23 @@ def setup_gpu(*, mode="streaming", threads=1, cache_dir=None, source=None, offli
                   latent_channels=64, samples_per_latent=1920,
                   mps_cpu_fallback=False, mps_fast_math=False, compiled_packet_ms=[40, 80],
                   compilation="load_time_for_streaming", other_packet_sizes="eager_mps")
+    if _cuda_platform():
+        common.update(backend="cuda", selected="torch_cuda_fused", recipe="nvidia_cuda_fused_v1",
+                      reason="Explicit NVIDIA GPU request", cuda=torch.version.cuda,
+                      gpu=torch.cuda.get_device_name(), capability=list(torch.cuda.get_device_capability()),
+                      tf32=False, other_packet_sizes="eager_cuda", compilation="load_time_for_streaming")
+        common.pop("mps_cpu_fallback")
+        common.pop("mps_fast_math")
     results = {}
     for selected_mode in (("batch", "streaming") if mode == "both" else (mode,)):
-        identity = dict(device="gpu", mode=selected_mode, torch=torch.__version__, model_files=MODEL_FILES)
+        identity = dict(device="gpu", backend=common["backend"], mode=selected_mode,
+                        torch=torch.__version__, model_files=MODEL_FILES)
         key = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
         results[selected_mode] = {**common, "mode": selected_mode, "cache_key": key,
                                   "compiled_packet_ms": [40, 80] if selected_mode == "streaming" else [],
                                   "compilation": "load_time" if selected_mode == "streaming" else "none"}
+        if common["backend"] == "cuda" and selected_mode == "batch":
+            results[selected_mode].update(selected="torch_cuda_eager", recipe="nvidia_cuda_eager_v1")
     return results if mode == "both" else results[mode]
 
 
@@ -101,6 +123,9 @@ def load_gpu(*, mode="streaming", threads=1, cache_dir=None, source=None, offlin
     info = setup_gpu(mode=mode, threads=threads, cache_dir=cache_dir, source=source,
                      offline=offline, prefer_custom=prefer_custom)
     torch = _torch()
+    if info["backend"] == "cuda":
+        from .cuda_decoder import load_cuda_model
+        return load_cuda_model(info, mode=mode)
     from .mps_decoder import MPSModel
     model = MPSModel.from_onnx(info["model_path"], device="mps")
     if mode == "streaming":

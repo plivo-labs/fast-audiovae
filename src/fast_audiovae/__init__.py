@@ -1,4 +1,4 @@
-"""AudioVAE2 inference with CPU defaults and explicit optional Apple GPU use."""
+"""AudioVAE2 inference with CPU defaults and explicit optional GPU use."""
 import os as _os
 
 # Avoid starting ORT's telemetry uploader for local CPU decoding. This must
@@ -9,7 +9,7 @@ from .runtime import load_decoder, load_streaming_decoder
 
 
 def load(*, mode="streaming", threads=1, device="cpu", **options):
-    """Load the decoder. CPU and streaming are defaults; Apple GPU is opt-in."""
+    """Load the decoder. CPU and streaming are defaults; GPU is opt-in."""
     from .automatic import load as automatic_load
     return automatic_load(mode=mode, threads=threads, device=device, **options)
 

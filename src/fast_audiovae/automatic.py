@@ -273,7 +273,7 @@ class AudioVAEDecoder:
 
 def load(*, mode="streaming", threads=1, device="cpu", cache_dir=None, source=None, offline=False,
          prefer_custom=True):
-    """Load the CPU recipe by default, or explicitly request Apple GPU inference."""
+    """Load the CPU recipe by default, or explicitly request GPU inference."""
     if mode not in ("batch", "streaming"):
         raise ValueError("mode must be batch or streaming")
     if device not in ("cpu", "gpu"):
